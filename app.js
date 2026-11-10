@@ -164,7 +164,7 @@ function setupProductos(){
     btn.setAttribute("role", "tab");
     btn.dataset.idx = i;
     btn.innerHTML = `<span>${b.name}</span>`;
-    btn.addEventListener("click", () => selectBurger(i));
+    btn.addEventListener("click", () => tocarPestana(i));
     tabsEl.appendChild(btn);
   });
 
@@ -207,18 +207,22 @@ function setupProductos(){
     });
 
     // Character card
-    const cImg = document.getElementById("prodCharImg");
-    cImg.src = b.character.img;
-    cImg.alt = `Personaje ${b.character.name}`;
-    safeImg(cImg, b.character.name);
     document.getElementById("prodCharName").textContent  = b.character.name;
     document.getElementById("prodCharStory").textContent = b.character.story;
   }
 
-  /* -- Reset view (back to burger desc, no char) ------------------- */
-  function resetView(){
-    stage.classList.remove("showChar");
-    verIngredientes(false);
+  /* -- Modo: burger o personaje -------------------------------------
+     Se mantiene al pasar de una burger a otra. En modo personaje las
+     pestañas de arriba se ponen blancas con letra negra. */
+  const enPersonaje = () => stage.classList.contains("showChar");
+  function setModo(personaje){
+    if (personaje) verIngredientes(false);
+    stage.classList.toggle("showChar", personaje);
+    tabsEl.classList.toggle("isChar", personaje);
+  }
+  function tocarPestana(i){
+    if (i === currentIdx) setModo(!enPersonaje());   // la misma: burger ↔ personaje
+    else selectBurger(i);                            // otra: misma vista, otra burger
   }
 
   /* -- Fotos de las burgers: las 6 cargadas una encima de la otra ----
@@ -236,12 +240,25 @@ function setupProductos(){
     safeImg(f, b.name);
     return f;
   });
-  data.burgers.forEach(b => { new Image().src = b.character.img; });
+  const charBase = document.getElementById("prodCharImg");
+  const charFotos = data.burgers.map((b, i) => {
+    const f = i === 0 ? charBase : document.createElement("img");
+    f.classList.add("prod-photo");
+    f.src = b.character.img;
+    f.alt = `Personaje ${b.character.name}`;
+    f.decoding = "async";
+    if (i > 0){ f.setAttribute("aria-hidden", "true"); charBase.parentElement.appendChild(f); }
+    safeImg(f, b.character.name);
+    return f;
+  });
+  const charRight = document.querySelector("#cardChar .prod-right");
 
-  /* -- Select a burger by index ------------------------------------ */
+  /* -- Select a burger by index ------------------------------------
+     modo: true = personaje, false = burger, sin pasar = el que se está viendo. */
   let sliding = false, cambio = 0;
-  function selectBurger(idx, animate = true){
-    if (animate && idx === currentIdx) return;
+  function selectBurger(idx, animate = true, modo){
+    const personaje = modo ?? enPersonaje();
+    if (animate && idx === currentIdx && personaje === enPersonaje()) return;
     const b = data.burgers[idx];
 
     getTabs().forEach((t, i) => {
@@ -252,23 +269,27 @@ function setupProductos(){
     if (tab) tabsEl.scrollTo({ left: tab.offsetLeft - (tabsEl.clientWidth - tab.offsetWidth) / 2, behavior: "smooth" });
     currentIdx = idx;
 
-    if (!animate) fotos.forEach(f => (f.style.transition = "none"));   // al cargar: sin fundido desde negro
-    fotos.forEach((f, i) => {
+    // fotos de burger y de personaje: se prende la de esta burger
+    const todas = fotos.concat(charFotos);
+    if (!animate) todas.forEach(f => (f.style.transition = "none"));   // al cargar: sin fundido desde negro
+    [fotos, charFotos].forEach(lista => lista.forEach((f, i) => {
       f.classList.toggle("isOn", i === idx);
       if (i === idx) f.removeAttribute("aria-hidden"); else f.setAttribute("aria-hidden", "true");
-    });
-    if (!animate){ void fotoBtn.offsetWidth; fotos.forEach(f => (f.style.transition = "")); }
+    }));
+    if (!animate){ void fotoBtn.offsetWidth; todas.forEach(f => (f.style.transition = "")); }
 
     const token = ++cambio;
-    // Sin animación, o si se estaba viendo el personaje (el recuadro vuelve a la burger con su fundido)
-    if (!animate || REDUCED_MOTION || !prodRight.animate || stage.classList.contains("showChar")){
-      resetView(); populateBurger(b); sliding = false; return;
+    const cambiaModo = personaje !== enPersonaje();
+    if (!animate || REDUCED_MOTION || !prodRight.animate || cambiaModo){
+      // el recuadro que está oculto se actualiza directo y después se cruzan con su fundido
+      verIngredientes(false); populateBurger(b); setModo(personaje); sliding = false; return;
     }
 
-    // Texto: se apaga en el lugar, cambia mientras no se ve y vuelve a aparecer.
+    // Texto de la vista actual: se apaga en el lugar, cambia mientras no se ve y vuelve.
+    const col = personaje ? charRight : prodRight;
     sliding = true;
-    prodRight.getAnimations().forEach(a => a.cancel());
-    const fuera = prodRight.animate([{ opacity: 1, filter: "blur(0)" }, { opacity: 0, filter: "blur(3px)" }],
+    [prodRight, charRight].forEach(c => c.getAnimations().forEach(a => a.cancel()));
+    const fuera = col.animate([{ opacity: 1, filter: "blur(0)" }, { opacity: 0, filter: "blur(3px)" }],
       { duration: 260, easing: "cubic-bezier(.4,0,1,1)", fill: "forwards" });
     let hecho = false;
     const cambiarTexto = () => {
@@ -276,12 +297,12 @@ function setupProductos(){
       hecho = true;
       const paneles = prodRight.querySelectorAll(".prod-panel");
       paneles.forEach(p => (p.style.transition = "none"));   // a la descripción sin verse deslizar
-      resetView();
+      verIngredientes(false);
       populateBurger(b);
       void prodRight.offsetWidth;
       paneles.forEach(p => (p.style.transition = ""));
       fuera.cancel();
-      const dentro = prodRight.animate(
+      const dentro = col.animate(
         [{ opacity: 0, filter: "blur(3px)", translate: "0 10px" }, { opacity: 1, filter: "blur(0)", translate: "0 0" }],
         { duration: 520, easing: "cubic-bezier(0,0,.2,1)" });
       const fin = () => { if (token === cambio) sliding = false; };
@@ -322,13 +343,8 @@ function setupProductos(){
   document.getElementById("prodIngClose")?.addEventListener("click", () => verIngredientes(false));
 
   /* -- Character card switch --------------------------------------- */
-  document.getElementById("prodToChar")?.addEventListener("click", () => {
-    verIngredientes(false);
-    stage.classList.add("showChar");
-  });
-  document.getElementById("prodToBurger")?.addEventListener("click", () => {
-    stage.classList.remove("showChar");
-  });
+  document.getElementById("prodToChar")?.addEventListener("click", () => setModo(true));
+  document.getElementById("prodToBurger")?.addEventListener("click", () => setModo(false));
 
   /* -- Carrusel automático ------------------------------------------
      Si nadie toca nada: descripción → ingredientes → personaje → siguiente burger.
@@ -348,8 +364,8 @@ function setupProductos(){
     return visible > r.height * .6;
   }
   function avanzar(){
-    if (stage.classList.contains("showChar")) selectBurger((currentIdx + 1) % data.burgers.length);
-    else if (prodRight.classList.contains("showIng")){ verIngredientes(false); stage.classList.add("showChar"); }
+    if (enPersonaje()) selectBurger((currentIdx + 1) % data.burgers.length, true, false);
+    else if (prodRight.classList.contains("showIng")) setModo(true);
     else verIngredientes(true);
   }
   function programar(){
@@ -375,7 +391,7 @@ function setupProductos(){
   document.addEventListener("visibilitychange", programar);
 
   /* -- Init -------------------------------------------------------- */
-  selectBurger(0, false);
+  selectBurger(0, false, false);
   if (!REDUCED_MOTION) programar();
 }
 
