@@ -26,7 +26,7 @@
 
 *{box-sizing:border-box}
 html,body{height:100%}
-html{scroll-behavior:smooth}
+html{scroll-behavior:auto}  /* el desplazamiento suave lo hace app.js (irA) con aceleración y frenado */
 [hidden]{display:none !important;}
 
 body{
@@ -246,6 +246,8 @@ code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Couri
   gap: 4px;
   margin: 0 0 14px;
   font-family: "Bernard MT Condensed", "Impact", "Arial Black", sans-serif;
+  font-weight: normal;      /* la fuente solo tiene peso normal: sin esto el navegador le inventa una negrita */
+  font-synthesis: none;
   letter-spacing: 2.2px;
 }
 .hero-title-top{
@@ -2224,7 +2226,7 @@ code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Couri
   background: var(--fg) !important;
   color: var(--bg) !important;
   border-color: var(--fg) !important;
-  font-weight: 700;
+  font-weight: 600;   /* Montserrat se carga en 300/400/600/800: 700 caía en la ExtraBold */
 }
 .pill--solid{ background: var(--fg); color: var(--bg); border-color: var(--fg); }
 .pill--solid:hover{ background: #fff; border-color: #fff; }
@@ -2297,3 +2299,121 @@ input[type=date].formInput{ color-scheme: dark; min-height: 46px; }
 
 /* Que nada (carruseles, paneles que entran de costado) ensanche la página en el celular */
 html{ overflow-x: clip; }
+
+/* Aparición suave de cada sección al llegar (app.js → setupAparecer) */
+.reveal{
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 1s cubic-bezier(.22,1,.36,1), transform 1.1s cubic-bezier(.22,1,.36,1);
+}
+.reveal.isIn{ opacity: 1; transform: none; }
+
+/* ---------- Productos: movimiento ---------- */
+/* Zoom lento de las fotos (va y vuelve), como un plano de cámara */
+.prod-img-btn img,
+.prod-char-left img{
+  transform-origin: 50% 55%;
+  animation: prodZoom 16s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes prodZoom{
+  from{ transform: scale(1); }
+  to{   transform: scale(1.09) translateY(-1.2%); }
+}
+
+/* El cartel de la foto se ve siempre (suave) para que se entienda que se toca */
+.prod-img-label{ opacity: .78; transition: opacity .25s ease, background .25s ease; }
+.prod-img-btn:hover .prod-img-label{ opacity: 1; background: rgba(10,10,10,.85); }
+
+/* Ingredientes: entran de a uno */
+.prod-right.showIng .prod-ing-item{
+  animation: ingIn .55s cubic-bezier(.22,1,.36,1) both;
+  animation-delay: calc(var(--i, 0) * 70ms + 120ms);
+}
+@keyframes ingIn{
+  from{ opacity: 0; transform: translateX(18px); }
+  to{   opacity: 1; transform: none; }
+}
+
+/* Paneles internos (descripción ↔ ingredientes) con el mismo lento-rápido-lento */
+.prod-panel,
+.prod-card{ transition-timing-function: cubic-bezier(.65,0,.35,1); transition-duration: .7s; }
+
+/* Barra de progreso del carrusel automático */
+.prod-progress{
+  position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+  background: rgba(245,245,245,.08); z-index: 5; pointer-events: none;
+  transition: opacity .3s ease;
+}
+.prod-progress span{
+  display: block; height: 100%; width: 100%;
+  background: rgba(245,245,245,.75);
+  transform-origin: left center; transform: scaleX(0);
+}
+.prod-progress.isRun span{ animation: prodProg var(--dur, 6s) linear forwards; }
+.prod-progress.isPaused{ opacity: 0; }
+@keyframes prodProg{ to{ transform: scaleX(1); } }
+
+@media (prefers-reduced-motion: reduce){
+  .prod-img-btn img, .prod-char-left img{ animation: none; }
+  .prod-right.showIng .prod-ing-item{ animation: none; }
+  .prod-progress{ display: none; }
+}
+
+/* Burger ↔ personaje: el recuadro no se mueve. Los dos recuadros están uno
+   encima del otro y se cruzan con un fundido; adentro la foto y el texto
+   hacen un movimiento corto. */
+#cardBurger, #cardChar,
+.prod-stage.showChar #cardBurger,
+.prod-stage.showChar #cardChar{ transform: none; }
+.prod-card{
+  transition: opacity .6s cubic-bezier(.65,0,.35,1), visibility .6s;
+}
+#cardChar{ opacity: 0; visibility: hidden; }
+.prod-stage.showChar #cardBurger{ opacity: 0; visibility: hidden; }
+.prod-stage.showChar #cardChar{ opacity: 1; visibility: visible; }
+#cardChar .prod-panel,
+#cardBurger #panelDesc{ translate: 0 0; transition: transform .7s cubic-bezier(.65,0,.35,1), translate .7s cubic-bezier(.65,0,.35,1); }
+#cardChar .prod-panel{ translate: 40px 0; }
+.prod-stage.showChar #cardChar .prod-panel{ translate: 0 0; }
+.prod-stage.showChar #cardBurger #panelDesc{ translate: -40px 0; }
+.prod-char-left img{ scale: 1.06; transition: scale .9s cubic-bezier(.22,1,.36,1); }
+.prod-stage.showChar .prod-char-left img{ scale: 1; }
+
+/* Personajes: imágenes recortadas al sticker y mostradas enteras, centradas,
+   con el mismo aire alrededor (antes rellenaban el recuadro y se cortaban). */
+.prod-card .prod-char-left img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: clamp(14px, 8%, 52px);
+  transform-origin: 50% 50%;
+  filter: none;
+}
+/* Los personajes son líneas negras sobre transparente: van sobre papel claro,
+   como en el dibujo original, con una viñeta suave en los bordes. */
+.prod-card .prod-char-left{
+  background: radial-gradient(120% 100% at 50% 45%, #f6f5f0 0%, #ecebe4 70%, #dedcd3 100%);
+  border-right-color: rgba(0,0,0,.08);
+}
+@media (max-width: 920px){
+  .prod-card .prod-char-left img{ padding: 12px 20px; }
+}
+
+/* Fotos de burgers apiladas: se cruzan con un fundido largo y la que entra
+   llega con un leve acercamiento (app.js → selectBurger). */
+.prod-img-btn .prod-photo{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  scale: 1.07;
+  transition: opacity .9s cubic-bezier(.4,0,.2,1), scale 1.8s cubic-bezier(.16,1,.3,1), filter .3s ease;
+}
+.prod-img-btn .prod-photo.isOn{ opacity: 1; scale: 1; z-index: 1; }
+.prod-img-btn .prod-img-label{ z-index: 2; }
+@media (prefers-reduced-motion: reduce){
+  .prod-img-btn .prod-photo{ transition: none; scale: 1; }
+}

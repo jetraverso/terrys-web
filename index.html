@@ -51,7 +51,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="styles.css?v=13" />
 </head>
 <body>
   <div id="grain" aria-hidden="true"></div>
@@ -63,6 +63,7 @@
     </a>
 
     <nav class="topnav" aria-label="Navegación">
+      <a href="#historia" class="navlink">Historia</a>
       <a href="#productos" class="navlink">Productos</a>
       <a href="#carta" class="navlink">Carta</a>
       <a href="#pedir" class="navlink">Delivery &amp; Take away</a>
@@ -78,14 +79,14 @@
 
   <!-- MOBILE MENU -->
   <div id="mobileMenu" class="mobileMenu" hidden>
-    <a href="#reservas" class="mLink">Reservar mesa</a>
+    <a href="#historia" class="mLink">Historia</a>
     <a href="#productos" class="mLink">Productos</a>
     <a href="#carta" class="mLink">Carta</a>
     <a href="#pedir" class="mLink">Delivery &amp; Take away</a>
     <a href="#eventos" class="mLink">Eventos</a>
-    <a href="#historia" class="mLink">Historia</a>
-    <a href="#contacto" class="mLink">Contacto</a>
     <a href="#trabaja" class="mLink">Trabajá con nosotros</a>
+    <a href="#contacto" class="mLink">Contacto</a>
+    <a href="#reservas" class="mLink">Reservar mesa</a>
   </div>
 
   <main id="app" class="app">
@@ -109,12 +110,13 @@
           </div>
 
           <nav class="hero-bottomnav" aria-label="Secciones principales">
-            <a class="hero-navbtn hero-navbtn--cta" href="#reservas">Reservar</a>
-            <a class="hero-navbtn" href="#pedir">Pedir</a>
-            <a class="hero-navbtn" href="#carta">Carta</a>
+            <a class="hero-navbtn" href="#historia">Historia</a>
             <a class="hero-navbtn" href="#productos">Productos</a>
+            <a class="hero-navbtn" href="#carta">Carta</a>
+            <a class="hero-navbtn" href="#pedir">Delivery &amp; Take away</a>
             <a class="hero-navbtn" href="#eventos">Eventos</a>
             <a class="hero-navbtn" href="#contacto">Contacto</a>
+            <a class="hero-navbtn hero-navbtn--cta" href="#reservas">Reservar</a>
           </nav>
         </div>
       </div>
@@ -532,91 +534,6 @@
       </div>
     </section>
 
-    <!-- RESERVAS -->
-    <section id="reservas" class="section section--auto" data-route="reservas">
-      <div class="wrap">
-        <div class="prod-eyebrow">
-          <span class="prod-eyebrow-text">Reservas</span>
-          <span class="prod-eyebrow-rule"></span>
-        </div>
-
-        <div class="resGrid">
-          <div class="resInfo">
-            <h2 class="h2">Reservá tu mesa</h2>
-            <p class="muted sectionLead">Elegí día, hora y cuántos son. Te confirmamos la reserva por WhatsApp o llamada.</p>
-
-            <ul class="infoList">
-              <li><span class="infoK">Mediodía</span><span>13:00 – 15:00</span></li>
-              <li><span class="infoK">Noche</span><span>20:00 – 22:30</span></li>
-              <li><span class="infoK">Grupos</span><span>Hasta 12 personas online</span></li>
-            </ul>
-            <p class="note">¿Son más de 12 o querés el local para un evento? Escribinos desde <a href="#eventos" class="mailLink">Eventos</a> y armamos algo a medida.</p>
-            <p class="note">¿Es para hoy y en menos de una hora? Mejor <a href="tel:+34615351131" class="mailLink">llamanos</a>.</p>
-          </div>
-
-          <div class="card resCard">
-            <form id="resForm" class="joinFormEl" novalidate>
-              <div class="formRow3">
-                <div class="formGroup">
-                  <label class="formLabel" for="resFecha">Día</label>
-                  <input class="formInput" id="resFecha" type="date" name="fecha" required />
-                </div>
-                <div class="formGroup">
-                  <label class="formLabel" for="resHora">Hora</label>
-                  <select class="formInput formSelect" id="resHora" name="hora" required>
-                    <option value="">Elegí el día</option>
-                  </select>
-                </div>
-                <div class="formGroup">
-                  <label class="formLabel" for="resPersonas">Personas</label>
-                  <select class="formInput formSelect" id="resPersonas" name="personas" required></select>
-                </div>
-              </div>
-
-              <div class="formRow2">
-                <div class="formGroup">
-                  <label class="formLabel" for="resNombre">Nombre</label>
-                  <input class="formInput" id="resNombre" type="text" name="nombre" autocomplete="name" maxlength="80" placeholder="Tu nombre" required />
-                </div>
-                <div class="formGroup">
-                  <label class="formLabel" for="resTel">Teléfono / WhatsApp</label>
-                  <input class="formInput" id="resTel" type="tel" name="telefono" autocomplete="tel" maxlength="30" placeholder="+34 600 000 000" required />
-                </div>
-              </div>
-
-              <div class="formGroup">
-                <label class="formLabel" for="resEmail">Email <span class="optional">(opcional)</span></label>
-                <input class="formInput" id="resEmail" type="email" name="email" autocomplete="email" maxlength="120" placeholder="tu@email.com" />
-              </div>
-
-              <div class="formGroup">
-                <label class="formLabel" for="resComentario">Comentario <span class="optional">(opcional)</span></label>
-                <textarea class="formInput formTextarea" id="resComentario" name="comentario" maxlength="500" rows="2" placeholder="Cumpleaños, alergias, silla para bebé, terraza…"></textarea>
-              </div>
-
-              <div class="hp" aria-hidden="true"><label>Web <input type="text" name="web" tabindex="-1" autocomplete="off" /></label></div>
-
-              <label class="check">
-                <input type="checkbox" name="acepto" required />
-                <span>Acepto que Terry's use estos datos solo para gestionar mi reserva.</span>
-              </label>
-
-              <button type="submit" class="pill pill--solid joinSubmit">Pedir reserva →</button>
-              <p class="formMsg" role="status" aria-live="polite"></p>
-            </form>
-
-            <div class="joinSuccess" data-success hidden>
-              <div class="joinSuccessIcon">✓</div>
-              <div class="h4">¡Reserva recibida!</div>
-              <p class="muted" data-resumen></p>
-              <p class="muted">Te escribimos para confirmarla. Si no te llega nada, llamanos al <a class="mailLink" href="tel:+34615351131">615 35 11 31</a>.</p>
-              <button type="button" class="pill ghost small" data-otra>Hacer otra reserva</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- EVENTOS -->
     <section id="eventos" class="section section--auto" data-route="eventos">
       <div class="wrap">
@@ -867,13 +784,102 @@
             </iframe>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- RESERVAS -->
+    <section id="reservas" class="section section--auto" data-route="reservas">
+      <div class="wrap">
+        <div class="prod-eyebrow">
+          <span class="prod-eyebrow-text">Reservas</span>
+          <span class="prod-eyebrow-rule"></span>
+        </div>
+
+        <div class="resGrid">
+          <div class="resInfo">
+            <h2 class="h2">Reservá tu mesa</h2>
+            <p class="muted sectionLead">Elegí día, hora y cuántos son. Te confirmamos la reserva por WhatsApp o llamada.</p>
+
+            <ul class="infoList">
+              <li><span class="infoK">Mediodía</span><span>13:00 – 15:00</span></li>
+              <li><span class="infoK">Noche</span><span>20:00 – 22:30</span></li>
+              <li><span class="infoK">Grupos</span><span>Hasta 12 personas online</span></li>
+            </ul>
+            <p class="note">¿Son más de 12 o querés el local para un evento? Escribinos desde <a href="#eventos" class="mailLink">Eventos</a> y armamos algo a medida.</p>
+            <p class="note">¿Es para hoy y en menos de una hora? Mejor <a href="tel:+34615351131" class="mailLink">llamanos</a>.</p>
+          </div>
+
+          <div class="card resCard">
+            <form id="resForm" class="joinFormEl" novalidate>
+              <div class="formRow3">
+                <div class="formGroup">
+                  <label class="formLabel" for="resFecha">Día</label>
+                  <input class="formInput" id="resFecha" type="date" name="fecha" required />
+                </div>
+                <div class="formGroup">
+                  <label class="formLabel" for="resHora">Hora</label>
+                  <select class="formInput formSelect" id="resHora" name="hora" required>
+                    <option value="">Elegí el día</option>
+                  </select>
+                </div>
+                <div class="formGroup">
+                  <label class="formLabel" for="resPersonas">Personas</label>
+                  <select class="formInput formSelect" id="resPersonas" name="personas" required></select>
+                </div>
+              </div>
+
+              <div class="formRow2">
+                <div class="formGroup">
+                  <label class="formLabel" for="resNombre">Nombre</label>
+                  <input class="formInput" id="resNombre" type="text" name="nombre" autocomplete="name" maxlength="80" placeholder="Tu nombre" required />
+                </div>
+                <div class="formGroup">
+                  <label class="formLabel" for="resTel">Teléfono / WhatsApp</label>
+                  <input class="formInput" id="resTel" type="tel" name="telefono" autocomplete="tel" maxlength="30" placeholder="+34 600 000 000" required />
+                </div>
+              </div>
+
+              <div class="formGroup">
+                <label class="formLabel" for="resEmail">Email <span class="optional">(opcional)</span></label>
+                <input class="formInput" id="resEmail" type="email" name="email" autocomplete="email" maxlength="120" placeholder="tu@email.com" />
+              </div>
+
+              <div class="formGroup">
+                <label class="formLabel" for="resComentario">Comentario <span class="optional">(opcional)</span></label>
+                <textarea class="formInput formTextarea" id="resComentario" name="comentario" maxlength="500" rows="2" placeholder="Cumpleaños, alergias, silla para bebé, terraza…"></textarea>
+              </div>
+
+              <div class="hp" aria-hidden="true"><label>Web <input type="text" name="web" tabindex="-1" autocomplete="off" /></label></div>
+
+              <label class="check">
+                <input type="checkbox" name="acepto" required />
+                <span>Acepto que Terry's use estos datos solo para gestionar mi reserva.</span>
+              </label>
+
+              <button type="submit" class="pill pill--solid joinSubmit">Pedir reserva →</button>
+              <p class="formMsg" role="status" aria-live="polite"></p>
+            </form>
+
+            <div class="joinSuccess" data-success hidden>
+              <div class="joinSuccessIcon">✓</div>
+              <div class="h4">¡Reserva recibida!</div>
+              <p class="muted" data-resumen></p>
+              <p class="muted">Te escribimos para confirmarla. Si no te llega nada, llamanos al <a class="mailLink" href="tel:+34615351131">615 35 11 31</a>.</p>
+              <button type="button" class="pill ghost small" data-otra>Hacer otra reserva</button>
+            </div>
+          </div>
+        </div>
 
         <footer class="footer">
           <nav class="footerNav" aria-label="Más enlaces">
             <a href="#historia">Historia</a>
-            <a href="#trabaja">Trabajá con nosotros</a>
-            <a href="#reservas">Reservas</a>
+            <a href="#productos">Productos</a>
+            <a href="#carta">Carta</a>
+            <a href="#pedir">Delivery &amp; Take away</a>
             <a href="#eventos">Eventos</a>
+            <a href="#trabaja">Trabajá con nosotros</a>
+            <a href="#contacto">Contacto</a>
+            <a href="#reservas">Reservas</a>
             <a href="https://www.instagram.com/terrysburgers.bcn/" target="_blank" rel="noopener">Instagram</a>
           </nav>
           <div class="muted">© <span id="year"></span> Terry's Burgers · Made in Argentina · Barcelona</div>
@@ -893,6 +899,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>

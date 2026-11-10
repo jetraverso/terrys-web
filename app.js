@@ -22,7 +22,7 @@ const data = {
       ],
       character: {
         name: "Terry",
-        img: "assets/img/personajes/terry.png",
+        img: "assets/img/personajes/terry.webp",
         story: "El personaje nace como un homenaje a los dos hermanos que dieron vida a la marca: Matías y Clara, fundadores y creadores de Terry’s Burgers. Desde pequeños, solían llamarse de manera cariñosa “Ter” o “Terry”, un apodo que con el tiempo se convirtió en su seña de identidad."
       }
     },
@@ -41,7 +41,7 @@ const data = {
       ],
       character: {
         name: "Torch",
-        img: "assets/img/personajes/torch.png",
+        img: "assets/img/personajes/torch.webp",
         story: "El nombre nace de una variante cariñosa del apodo con el que Matías suele llamar a Clara, y este personaje refleja su esencia. Como cofundadora de Terry’s, Clara es la mente estratégica: organizada, precisa y siempre enfocada en los números. Representa el equilibrio perfecto entre pasión y planificación, entre sabor y estructura."
       }
     },
@@ -62,7 +62,7 @@ const data = {
       ],
       character: {
         name: "Russel",
-        img: "assets/img/personajes/russel.png",
+        img: "assets/img/personajes/russel.webp",
         story: "El personaje encarna la personalidad de Matías: alegre, creativo y siempre con una sonrisa. Como cofundador, Matias es el chef que se atreve a innovar, combinar sabores y a sorprender con su toque especial que convierte cada hamburguesa en una experiencia única. Russel representa la pasión y la energía."
       }
     },
@@ -83,7 +83,7 @@ const data = {
       ],
       character: {
         name: "Zulma",
-        img: "assets/img/personajes/zulma.png",
+        img: "assets/img/personajes/zulma.webp",
         story: "El personaje nació en representación de la madre de Matías y Clara, el pilar que impulsó y acompaño a los hermanos en sus primeros pasos. Su apoyo fue fundamental en los inicios, cuando el proyecto nació en su casa y sigue siendo una guía constante."
       }
     },
@@ -102,7 +102,7 @@ const data = {
       ],
       character: {
         name: "Rumpy",
-        img: "assets/img/personajes/rumpy.png",
+        img: "assets/img/personajes/rumpy.webp",
         story: "Rumpi es el fiel compañero de Matías y Clara, un adorable golden retriever que siempre ha formado parte de la familia. Un perro humanizado, de carácter alegre y leal que representa la buena vibra y calidez de Terry´s."
       }
     },
@@ -122,7 +122,7 @@ const data = {
       ],
       character: {
         name: "Buba",
-        img: "assets/img/personajes/buba.png",
+        img: "assets/img/personajes/buba.webp",
         story: "Esta burger nació como una edición especial en honor a la abuela paterna de los hermanos que falleció al poco tiempo de abrir la hamburguesería. El apodo fue inventado por Clara cuando era chiquita y quedo como su identidad. Ahora es un sello distintivo que nos acompaña siempre."
       }
     }
@@ -161,6 +161,7 @@ function setupProductos(){
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "prod-tab";
+    btn.setAttribute("role", "tab");
     btn.dataset.idx = i;
     btn.innerHTML = `<span>${b.name}</span>`;
     btn.addEventListener("click", () => selectBurger(i));
@@ -173,11 +174,6 @@ function setupProductos(){
 
   /* -- Fill burger data -------------------------------------------- */
   function populateBurger(b){
-    const bImg = document.getElementById("prodBurgerImg");
-    bImg.src = b.img;
-    bImg.alt = `Hamburguesa ${b.name}`;
-    safeImg(bImg, b.name);
-
     document.getElementById("prodTag").textContent  = b.tag;
     document.getElementById("prodName").textContent = b.name;
     document.getElementById("prodDesc").textContent = b.desc;
@@ -185,9 +181,10 @@ function setupProductos(){
 
     const ul = document.getElementById("prodIngList");
     ul.innerHTML = "";
-    b.bullets.forEach(item => {
+    b.bullets.forEach((item, n) => {
       const li = document.createElement("li");
       li.className = "prod-ing-item";
+      li.style.setProperty("--i", n);
 
       const img = document.createElement("img");
       img.src   = item.img;
@@ -221,39 +218,165 @@ function setupProductos(){
   /* -- Reset view (back to burger desc, no char) ------------------- */
   function resetView(){
     stage.classList.remove("showChar");
-    prodRight.classList.remove("showIng");
+    verIngredientes(false);
   }
+
+  /* -- Fotos de las burgers: las 6 cargadas una encima de la otra ----
+     Cambiar de burger = apagar una y prender otra (fundido + leve acercamiento).
+     No se copia nada ni se cambia la imagen en el momento: no hay saltos. */
+  const fotoBtn = document.getElementById("prodImgBtn");
+  const fotoBase = document.getElementById("prodBurgerImg");
+  const fotos = data.burgers.map((b, i) => {
+    const f = i === 0 ? fotoBase : document.createElement("img");
+    f.classList.add("prod-photo");
+    f.src = b.img;
+    f.alt = `Hamburguesa ${b.name}`;
+    f.decoding = "async";
+    if (i > 0){ f.setAttribute("aria-hidden", "true"); fotoBase.after(f); }
+    safeImg(f, b.name);
+    return f;
+  });
+  data.burgers.forEach(b => { new Image().src = b.character.img; });
 
   /* -- Select a burger by index ------------------------------------ */
-  function selectBurger(idx){
-    currentIdx = idx;
+  let sliding = false, cambio = 0;
+  function selectBurger(idx, animate = true){
+    if (animate && idx === currentIdx) return;
     const b = data.burgers[idx];
 
-    getTabs().forEach((t, i) => t.classList.toggle("isActive", i === idx));
+    getTabs().forEach((t, i) => {
+      t.classList.toggle("isActive", i === idx);
+      t.setAttribute("aria-selected", i === idx ? "true" : "false");
+    });
+    const tab = getTabs()[idx];
+    if (tab) tabsEl.scrollTo({ left: tab.offsetLeft - (tabsEl.clientWidth - tab.offsetWidth) / 2, behavior: "smooth" });
+    currentIdx = idx;
 
-    resetView();
-    populateBurger(b);
+    if (!animate) fotos.forEach(f => (f.style.transition = "none"));   // al cargar: sin fundido desde negro
+    fotos.forEach((f, i) => {
+      f.classList.toggle("isOn", i === idx);
+      if (i === idx) f.removeAttribute("aria-hidden"); else f.setAttribute("aria-hidden", "true");
+    });
+    if (!animate){ void fotoBtn.offsetWidth; fotos.forEach(f => (f.style.transition = "")); }
+
+    const token = ++cambio;
+    // Sin animación, o si se estaba viendo el personaje (el recuadro vuelve a la burger con su fundido)
+    if (!animate || REDUCED_MOTION || !prodRight.animate || stage.classList.contains("showChar")){
+      resetView(); populateBurger(b); sliding = false; return;
+    }
+
+    // Texto: se apaga en el lugar, cambia mientras no se ve y vuelve a aparecer.
+    sliding = true;
+    prodRight.getAnimations().forEach(a => a.cancel());
+    const fuera = prodRight.animate([{ opacity: 1, filter: "blur(0)" }, { opacity: 0, filter: "blur(3px)" }],
+      { duration: 260, easing: "cubic-bezier(.4,0,1,1)", fill: "forwards" });
+    let hecho = false;
+    const cambiarTexto = () => {
+      if (hecho || token !== cambio) return;      // llegó otro clic: manda el último
+      hecho = true;
+      const paneles = prodRight.querySelectorAll(".prod-panel");
+      paneles.forEach(p => (p.style.transition = "none"));   // a la descripción sin verse deslizar
+      resetView();
+      populateBurger(b);
+      void prodRight.offsetWidth;
+      paneles.forEach(p => (p.style.transition = ""));
+      fuera.cancel();
+      const dentro = prodRight.animate(
+        [{ opacity: 0, filter: "blur(3px)", translate: "0 10px" }, { opacity: 1, filter: "blur(0)", translate: "0 0" }],
+        { duration: 520, easing: "cubic-bezier(0,0,.2,1)" });
+      const fin = () => { if (token === cambio) sliding = false; };
+      dentro.onfinish = fin;
+      setTimeout(fin, 700);
+    };
+    fuera.onfinish = cambiarTexto;
+    setTimeout(cambiarTexto, 320);                  // por si la pestaña quedó en segundo plano
   }
 
-  /* -- Ingredient panel toggle ------------------------------------- */
-  document.getElementById("prodImgBtn")?.addEventListener("click", () => {
-    prodRight.classList.add("showIng");
+  /* -- Deslizar con el dedo / flechas del teclado ------------------- */
+  let x0 = null, y0 = null;
+  stage.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  stage.addEventListener("touchend", e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    x0 = null;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+    const n = data.burgers.length;
+    selectBurger((currentIdx + (dx < 0 ? 1 : -1) + n) % n);
+  }, { passive: true });
+  tabsEl.addEventListener("keydown", e => {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    const n = data.burgers.length, i = (currentIdx + (e.key === "ArrowRight" ? 1 : -1) + n) % n;
+    selectBurger(i); getTabs()[i]?.focus();
   });
-  document.getElementById("prodIngClose")?.addEventListener("click", () => {
-    prodRight.classList.remove("showIng");
-  });
+
+  /* -- Ingredientes: un clic en la burger los abre, otro los cierra -- */
+  const imgBtn = document.getElementById("prodImgBtn");
+  const imgLabel = imgBtn?.querySelector(".prod-img-label");
+  function verIngredientes(si){
+    prodRight.classList.toggle("showIng", si);
+    if (imgLabel) imgLabel.textContent = si ? "Ocultar ingredientes" : "Ver ingredientes";
+    imgBtn?.setAttribute("aria-label", si ? "Ocultar ingredientes" : "Ver ingredientes");
+    imgBtn?.setAttribute("aria-expanded", si ? "true" : "false");
+  }
+  imgBtn?.addEventListener("click", () => verIngredientes(!prodRight.classList.contains("showIng")));
+  document.getElementById("prodIngClose")?.addEventListener("click", () => verIngredientes(false));
 
   /* -- Character card switch --------------------------------------- */
   document.getElementById("prodToChar")?.addEventListener("click", () => {
-    prodRight.classList.remove("showIng");
+    verIngredientes(false);
     stage.classList.add("showChar");
   });
   document.getElementById("prodToBurger")?.addEventListener("click", () => {
     stage.classList.remove("showChar");
   });
 
+  /* -- Carrusel automático ------------------------------------------
+     Si nadie toca nada: descripción → ingredientes → personaje → siguiente burger.
+     Se frena con el mouse encima, al tocar algo (vuelve a los 12 s de no tocar),
+     si la sección no está en pantalla o la pestaña está en segundo plano. */
+  const PASO = 6500, QUIETO = 12000;
+  const bar = document.createElement("div");
+  bar.className = "prod-progress isPaused";
+  bar.innerHTML = "<span></span>";
+  stage.appendChild(bar);
+  let encima = false, quietoHasta = 0, timer = null;
+
+  function puedeAvanzar(){
+    if (REDUCED_MOTION || document.hidden || encima || sliding || Date.now() < quietoHasta) return false;
+    const r = stage.getBoundingClientRect();
+    const visible = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
+    return visible > r.height * .6;
+  }
+  function avanzar(){
+    if (stage.classList.contains("showChar")) selectBurger((currentIdx + 1) % data.burgers.length);
+    else if (prodRight.classList.contains("showIng")){ verIngredientes(false); stage.classList.add("showChar"); }
+    else verIngredientes(true);
+  }
+  function programar(){
+    clearTimeout(timer);
+    if (!puedeAvanzar()){
+      bar.classList.remove("isRun"); bar.classList.add("isPaused");
+      timer = setTimeout(programar, 600);
+      return;
+    }
+    bar.classList.remove("isPaused", "isRun");
+    void bar.offsetWidth;                       // reinicia la barra
+    bar.style.setProperty("--dur", PASO + "ms");
+    bar.classList.add("isRun");
+    timer = setTimeout(() => { if (puedeAvanzar()) avanzar(); programar(); }, PASO);
+  }
+  function tocar(){ quietoHasta = Date.now() + QUIETO; programar(); }
+  [stage, tabsEl].forEach(el => {
+    el.addEventListener("pointerdown", tocar);
+    el.addEventListener("keydown", tocar);
+    el.addEventListener("pointerenter", e => { if (e.pointerType === "mouse"){ encima = true; programar(); } });
+    el.addEventListener("pointerleave", e => { if (e.pointerType === "mouse"){ encima = false; programar(); } });
+  });
+  document.addEventListener("visibilitychange", programar);
+
   /* -- Init -------------------------------------------------------- */
-  selectBurger(0);
+  selectBurger(0, false);
+  if (!REDUCED_MOTION) programar();
 }
 
 /* ------------------------------------------------------------------ */
@@ -300,12 +423,87 @@ function setupMobileMenu(){
 /* ------------------------------------------------------------------ */
 /* ACCIONES GENÉRICAS                                                   */
 /* ------------------------------------------------------------------ */
+const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const EASE_IN_OUT = "cubic-bezier(.65,0,.35,1)";            // lento → rápido → lento
+const easeInOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+/* Desplazamiento entre secciones: arranca suave, acelera y frena al llegar.
+   La duración crece con la distancia (0,7 s a 1,4 s). Si la persona mueve la
+   rueda o toca la pantalla, se corta y la deja seguir a ella. */
+let scrollAnim = null;
+// En esta página el que se desplaza es el <body> (html y body miden 100% de alto);
+// si algún día pasa a ser la ventana, se usa esa.
+function desplazable(){
+  const b = document.body;
+  return (b.scrollHeight > b.clientHeight + 1 && /(auto|scroll)/.test(getComputedStyle(b).overflowY))
+    ? b : document.scrollingElement;
+}
+function irA(el, hash){
+  if (!el) return;
+  const sc = desplazable();
+  const margen = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+  const top0 = sc === document.scrollingElement ? 0 : sc.getBoundingClientRect().top;
+  const destino = Math.max(0, Math.min(
+    el.getBoundingClientRect().top - top0 + sc.scrollTop - margen,
+    sc.scrollHeight - sc.clientHeight));
+  if (hash && location.hash !== hash) history.pushState(null, "", hash);
+  if (REDUCED_MOTION){ sc.scrollTop = destino; return; }
+  cancelAnimationFrame(scrollAnim);
+  const desde = sc.scrollTop, dist = destino - desde;
+  if (Math.abs(dist) < 2) return;
+  const dur = Math.min(1400, Math.max(700, 450 + Math.abs(dist) * .22));
+  const t0 = performance.now();
+  const paso = now => {
+    const t = Math.min(1, (now - t0) / dur);
+    sc.scrollTop = desde + dist * easeInOut(t);
+    if (t < 1) scrollAnim = requestAnimationFrame(paso);
+  };
+  scrollAnim = requestAnimationFrame(paso);
+}
+["wheel", "touchstart", "keydown"].forEach(ev =>
+  window.addEventListener(ev, () => cancelAnimationFrame(scrollAnim), { passive: true }));
+
+function setupScrollSuave(){
+  document.addEventListener("click", e => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const hash = a.getAttribute("href");
+    const el = hash.length > 1 && document.getElementById(decodeURIComponent(hash.slice(1)));
+    if (!el) return;
+    e.preventDefault();
+    // cerrar el menú del celular si el link estaba ahí
+    const menu = $("#mobileMenu");
+    if (menu && !menu.hidden && menu.contains(a)){ menu.hidden = true; $("#burgerBtn")?.setAttribute("aria-expanded", "false"); }
+    irA(el, hash);
+  });
+}
+
+/* Cada sección aparece con un fundido suave la primera vez que entra en pantalla.
+   Se revisa en cada movimiento del scroll (son pocos bloques), así nunca queda nada oculto. */
+function setupAparecer(){
+  if (REDUCED_MOTION) return;
+  let pendientes = $$("main > section:not(.hero) > .wrap, main > section:not(.hero) > .hist-wrap")
+    .filter(b => b.getBoundingClientRect().top > window.innerHeight * .88);   // lo que ya se ve al cargar no se anima
+  pendientes.forEach(b => b.classList.add("reveal"));
+  let pedido = false;
+  const revisar = () => {
+    pedido = false;
+    const limite = window.innerHeight * .9;
+    pendientes = pendientes.filter(b => {
+      if (b.getBoundingClientRect().top < limite){ b.classList.add("isIn"); return false; }
+      return true;
+    });
+  };
+  const alMover = () => { if (!pedido && pendientes.length){ pedido = true; setTimeout(revisar, 40); } };
+  document.body.addEventListener("scroll", alMover, { passive: true });
+  window.addEventListener("scroll", alMover, { passive: true });
+  window.addEventListener("resize", alMover);
+}
+
 function setupActions(){
   $$("[data-action='scrollTo']").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const el = document.querySelector(btn.dataset.target);
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+    btn.addEventListener("click", () => irA(document.querySelector(btn.dataset.target)));
   });
 
   $("#openMenu")?.addEventListener("click",  () => modal(true));
@@ -582,7 +780,7 @@ function setupEventos(){
   if (!form) return;
   $$("[data-ev]").forEach(b => b.addEventListener("click", () => {
     form.elements.tipo.value = b.dataset.ev;
-    $("#evFormCard").scrollIntoView({ behavior: "smooth", block: "start" });
+    irA($("#evFormCard"));
     setTimeout(() => form.elements.nombre.focus({ preventScroll: true }), 500);
   }));
   form.elements.fecha.min = ahoraBcn().dia;
@@ -634,6 +832,8 @@ function init(){
   setupQR();
   setupReservas();
   setupEventos();
+  setupScrollSuave();
+  setupAparecer();
 }
 
 document.addEventListener("DOMContentLoaded", init);
