@@ -1,0 +1,19 @@
+Poné tus imágenes en esta carpeta con exactamente estos nombres:
+
+pan-brioche-top.png      → tapa superior del pan (se usa en todas las burgers)
+pan-brioche-bottom.png   → base inferior del pan (se usa en todas las burgers)
+carne-smash.png          → se usa en: Terry, Torch, Russel, Zulma, Rumpy, Buba
+cheddar.png              → se usa en: Terry (x2), Torch (x2), Russel, Zulma, Rumpy, Buba
+bacon.png                → se usa en: Torch
+salsa-mil-isla.png       → se usa en: Russel
+lechuga.png              → se usa en: Russel
+tomate.png               → se usa en: Russel
+cebolla.png              → se usa en: Zulma
+mostaza.png              → se usa en: Zulma
+ketchup.png              → se usa en: Zulma
+cebolla-smashada.png     → se usa en: Rumpy
+salsa-barbacoa.png       → se usa en: Buba
+stick-mozzarella.png     → se usa en: Buba
+
+Formatos aceptados: PNG (recomendado, con fondo transparente), JPG o WEBP.
+Tamaño sugerido: 100×100 px mínimo.

@@ -1,0 +1,16 @@
+ICONOS DE PLATAFORMAS DE DELIVERY
+==================================
+Carpeta: assets/img/plataformas/
+
+Colocá los logos aquí con exactamente estos nombres:
+
+  glovo.png       → Logo de Glovo
+  ubereats.png    → Logo de Uber Eats
+  justeat.png     → Logo de Just Eat
+
+Formato recomendado:
+  - PNG con fondo transparente
+  - Tamaño: mínimo 200×200 px (cuadrado o casi cuadrado)
+  - El sitio aplica filtro blanco automáticamente para que encaje en el diseño B&W
+
+Si no ponés alguna imagen, aparece el texto de letra como placeholder (G / UBER EATS / JUST EAT).

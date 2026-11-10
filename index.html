@@ -1,0 +1,898 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Terry's Burgers · Smash burgers argentinas en Les Corts, Barcelona</title>
+  <meta name="description" content="Smash burgers argentinas en Les Corts, Barcelona. Mirá la carta, reservá mesa, pedí delivery o take away y organizá tu evento con Terry's." />
+  <meta name="theme-color" content="#0a0a0a" />
+  <link rel="canonical" href="https://terrysburgers.com/" />
+  <link rel="icon" href="assets/img/personajes/terry.png" />
+
+  <meta property="og:type" content="restaurant" />
+  <meta property="og:site_name" content="Terry's Burgers" />
+  <meta property="og:title" content="Terry's Burgers · Barcelona" />
+  <meta property="og:description" content="Smash burgers argentinas en Les Corts. Reservá, pedí delivery o take away." />
+  <meta property="og:url" content="https://terrysburgers.com/" />
+  <meta property="og:image" content="https://terrysburgers.com/assets/img/local.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Restaurant",
+    "name": "Terry's Burgers",
+    "url": "https://terrysburgers.com/",
+    "image": "https://terrysburgers.com/assets/img/local.jpg",
+    "telephone": "+34615351131",
+    "email": "info@terrysburgers.com",
+    "servesCuisine": ["Hamburguesas", "Argentina"],
+    "priceRange": "€",
+    "acceptsReservations": true,
+    "menu": "https://terrysburgers.com/#carta",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Carrer del Taquígraf Garriga 143, Bajos 2",
+      "addressLocality": "Barcelona",
+      "postalCode": "08029",
+      "addressCountry": "ES"
+    },
+    "geo": { "@type": "GeoCoordinates", "latitude": 41.3899569, "longitude": 2.1390489 },
+    "openingHoursSpecification": [
+      { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "13:00", "closes": "15:30" },
+      { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "20:00", "closes": "23:00" }
+    ],
+    "sameAs": ["https://www.instagram.com/terrysburgers.bcn/"]
+  }
+  </script>
+
+  <!-- Google Fonts: Montserrat (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css?v=3" />
+</head>
+<body>
+  <div id="grain" aria-hidden="true"></div>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="Ir al inicio">
+      <span class="brand-title">TERRY'S BURGERS</span>
+    </a>
+
+    <nav class="topnav" aria-label="Navegación">
+      <a href="#productos" class="navlink">Productos</a>
+      <a href="#carta" class="navlink">Carta</a>
+      <a href="#pedir" class="navlink">Delivery &amp; Take away</a>
+      <a href="#eventos" class="navlink">Eventos</a>
+      <a href="#contacto" class="navlink">Contacto</a>
+      <a href="#reservas" class="navlink navlink--cta">Reservar</a>
+    </nav>
+
+    <button class="burger" id="burgerBtn" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span><span></span>
+    </button>
+  </header>
+
+  <!-- MOBILE MENU -->
+  <div id="mobileMenu" class="mobileMenu" hidden>
+    <a href="#reservas" class="mLink">Reservar mesa</a>
+    <a href="#productos" class="mLink">Productos</a>
+    <a href="#carta" class="mLink">Carta</a>
+    <a href="#pedir" class="mLink">Delivery &amp; Take away</a>
+    <a href="#eventos" class="mLink">Eventos</a>
+    <a href="#historia" class="mLink">Historia</a>
+    <a href="#contacto" class="mLink">Contacto</a>
+    <a href="#trabaja" class="mLink">Trabajá con nosotros</a>
+  </div>
+
+  <main id="app" class="app">
+
+    <!-- HOME -->
+    <section id="home" class="section hero" data-route="home">
+      <div class="hero-media" role="img" aria-label="Foto del local"></div>
+      <div class="hero-overlay"></div>
+
+      <div class="hero-content">
+        <h1 class="hero-title" aria-label="Terry's Burgers">
+          <span class="hero-title-top">TERRY'S</span>
+          <span class="hero-title-bottom">BURGERS</span>
+        </h1>
+
+        <div class="hero-kicker">MADE IN ARGENTINA. TASTE THE ORIGINAL.</div>
+
+        <div class="heroDock">
+          <div class="hero-hint">
+            <span class="dot"></span> Deslizá / scroll para explorar
+          </div>
+
+          <nav class="hero-bottomnav" aria-label="Secciones principales">
+            <a class="hero-navbtn hero-navbtn--cta" href="#reservas">Reservar</a>
+            <a class="hero-navbtn" href="#pedir">Pedir</a>
+            <a class="hero-navbtn" href="#carta">Carta</a>
+            <a class="hero-navbtn" href="#productos">Productos</a>
+            <a class="hero-navbtn" href="#eventos">Eventos</a>
+            <a class="hero-navbtn" href="#contacto">Contacto</a>
+          </nav>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORIA -->
+    <section id="historia" class="history-editorial">
+      <div class="hist-wrap">
+
+        <!-- Encabezado -->
+        <div class="hist-header">
+          <div class="hist-eyebrow-line">
+            <span class="hist-eyebrow-text">Historia</span>
+            <span class="hist-eyebrow-rule"></span>
+          </div>
+          <h2 class="hist-title">De una cocina<br>de casa a una<br>mesa en Barcelona.</h2>
+        </div>
+
+        <!-- Fila 1: Carrusel A (izquierda) + Texto 1 (derecha) -->
+        <div class="hist-row">
+          <div class="hist-media">
+            <div id="histCarouselA" class="histCarousel">
+              <div id="histTrackA" class="histTrack">
+                <div class="histSlide"><img src="assets/img/historia_1.jpg" alt="Terry's — los comienzos" /></div>
+                <div class="histSlide"><img src="assets/img/historia_2.jpg" alt="Terry's — creciendo" /></div>
+                <div class="histSlide"><img src="assets/img/historia_3.jpg" alt="Terry's — primer local" /></div>
+              </div>
+              <div id="histDotsA" class="histDots"></div>
+            </div>
+          </div>
+
+          <div class="hist-text">
+            <div class="hist-chapter">
+              <span class="hist-chapter-num">01</span>
+              <span class="hist-chapter-label">Argentina, 2022</span>
+            </div>
+            <p>Terry's Burgers nació en la cocina de casa, con una idea simple: preparar hamburguesas caseras de calidad para compartir con amigos y vecinos. Lo que empezó como un pequeño delivery de barrio fue creciendo paso a paso, hasta abrir nuestro primer local en Argentina en 2022.</p>
+            <p>Con el tiempo, la familia y los clientes se volvieron parte de esta historia, acompañándonos en cada nueva etapa.</p>
+          </div>
+        </div>
+
+        <!-- Fila 2: Texto 2 (izquierda) + Carrusel B (derecha) -->
+        <div class="hist-row hist-row--reverse">
+          <div class="hist-text">
+            <div class="hist-chapter">
+              <span class="hist-chapter-num">02</span>
+              <span class="hist-chapter-label">Barcelona, 2024</span>
+            </div>
+            <p>En 2024 dimos el gran salto: llegar a Barcelona y abrir en el corazón de Les Corts, para compartir la misma esencia en un nuevo país.</p>
+            <p>Terry's es mucho más que hamburguesas. Es autenticidad en cada bocado, donde cada detalle refleja pasión, esfuerzo y el espíritu familiar que nos trajo hasta acá. Servimos experiencias cercanas, honestas y con identidad propia. Porque cada burger cuenta nuestra historia, y cada cliente que se sienta a la mesa pasa a formar parte de ella.</p>
+          </div>
+
+          <div class="hist-media">
+            <div id="histCarouselB" class="histCarousel">
+              <div id="histTrackB" class="histTrack">
+                <div class="histSlide"><img src="assets/img/historia_4.jpg" alt="Terry's — llegada a Barcelona" /></div>
+                <div class="histSlide"><img src="assets/img/historia_5.jpg" alt="Terry's — hoy" /></div>
+              </div>
+              <div id="histDotsB" class="histDots"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cita cierre -->
+        <blockquote class="hist-quote">
+          "Más que hamburguesas: una historia hecha de familia, barrio y pasión."
+        </blockquote>
+
+      </div>
+    </section>
+
+    <!-- PRODUCTOS -->
+    <section id="productos" class="section" data-route="productos">
+      <div class="wrap">
+
+        <!-- Header eyebrow -->
+        <div class="prod-eyebrow">
+          <span class="prod-eyebrow-text">Productos</span>
+          <span class="prod-eyebrow-rule"></span>
+        </div>
+
+        <!-- Tabs de hamburguesas -->
+        <div class="prod-tabs" id="prodTabs" role="tablist" aria-label="Hamburguesas"></div>
+
+        <!-- Escenario principal -->
+        <div class="prod-stage" id="prodStage">
+
+          <!-- CARD: Vista burger -->
+          <div class="prod-card" id="cardBurger">
+
+            <!-- Izquierda: imagen (click = ingredientes) -->
+            <div class="prod-left">
+              <button class="prod-img-btn" id="prodImgBtn" aria-label="Ver ingredientes">
+                <img id="prodBurgerImg" src="" alt="" />
+                <span class="prod-img-label">Ver ingredientes</span>
+              </button>
+            </div>
+
+            <!-- Derecha: paneles (descripción / ingredientes) -->
+            <div class="prod-right">
+
+              <!-- Panel descripción -->
+              <div class="prod-panel" id="panelDesc">
+                <span id="prodTag" class="tag"></span>
+                <h3 id="prodName" class="prod-name"></h3>
+                <p id="prodDesc" class="prod-desc"></p>
+                <div class="prod-char-row">
+                  <div>
+                    <div class="prod-char-label">Personaje</div>
+                    <div id="prodCharHint" class="prod-char-hint-name"></div>
+                  </div>
+                  <button class="pill small" id="prodToChar">Ver personaje →</button>
+                </div>
+              </div>
+
+              <!-- Panel ingredientes (oculto inicialmente) -->
+              <div class="prod-panel prod-ing-panel" id="panelIng">
+                <div class="prod-ing-header">
+                  <div class="prod-ing-title">Ingredientes</div>
+                  <button class="iconBtn" id="prodIngClose" aria-label="Cerrar">✕</button>
+                </div>
+                <ul id="prodIngList" class="prod-ing-list"></ul>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- CARD: Vista personaje (entra desde la derecha) -->
+          <div class="prod-card prod-card-char" id="cardChar">
+
+            <div class="prod-left prod-char-left">
+              <img id="prodCharImg" src="" alt="" />
+            </div>
+
+            <div class="prod-right">
+              <div class="prod-panel">
+                <div class="prod-char-label">Personaje</div>
+                <h3 id="prodCharName" class="prod-name"></h3>
+                <p id="prodCharStory" class="prod-desc"></p>
+                <button class="pill ghost" id="prodToBurger">← Volver a la burger</button>
+              </div>
+            </div>
+
+          </div>
+
+        </div><!-- /prod-stage -->
+      </div>
+    </section>
+
+    <!-- CARTA / PEDIDOS -->
+    <section id="carta" class="section" data-route="carta">
+      <div class="wrap">
+        <div class="prod-eyebrow">
+          <span class="prod-eyebrow-text">Carta</span>
+          <span class="prod-eyebrow-rule"></span>
+        </div>
+
+        <div class="tabPanels">
+          <div id="tabCarta" class="panel isActive">
+            <div class="menu-grid">
+
+              <!-- BURGERS -->
+              <div class="menu-col menu-col--burgers">
+                <div class="menu-col-header">
+                  <h3 class="menu-col-title">Burgers</h3>
+                  <div class="menu-col-sub">Medallón 100g · pan brioche</div>
+                  <div class="menu-price-headers">
+                    <span>Simple</span><span>Doble</span>
+                  </div>
+                </div>
+                <ul class="menu-list">
+                  <li class="menu-item">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Terry</span>
+                      <span class="menu-item-desc">Con doble cheddar</span>
+                    </div>
+                    <div class="menu-item-prices"><span>6,90</span><span>8,90</span></div>
+                  </li>
+                  <li class="menu-item">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Torch</span>
+                      <span class="menu-item-desc">Con doble cheddar y bacon</span>
+                    </div>
+                    <div class="menu-item-prices"><span>9,00</span><span>11,00</span></div>
+                  </li>
+                  <li class="menu-item">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Russel</span>
+                      <span class="menu-item-desc">Con cheddar, lechuga, tomate y salsa mil islas</span>
+                    </div>
+                    <div class="menu-item-prices"><span>8,50</span><span>10,50</span></div>
+                  </li>
+                  <li class="menu-item">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Zulma</span>
+                      <span class="menu-item-desc">Con cheddar, ketchup, mostaza y cebolla picada</span>
+                    </div>
+                    <div class="menu-item-prices"><span>8,50</span><span>10,50</span></div>
+                  </li>
+                  <li class="menu-item">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Rumpi</span>
+                      <span class="menu-item-desc">Con cheddar y cebolla smasheada</span>
+                    </div>
+                    <div class="menu-item-prices"><span>8,50</span><span>10,50</span></div>
+                  </li>
+                  <li class="menu-item">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Buba</span>
+                      <span class="menu-item-desc">Con muzzarellitas, cheddar y barbacoa</span>
+                    </div>
+                    <div class="menu-item-prices"><span>9,00</span><span>11,00</span></div>
+                  </li>
+                </ul>
+                <div class="menu-col-note">* Hazla vegetariana por 1€ más por medallón</div>
+              </div>
+
+              <!-- SIDES -->
+              <div class="menu-col">
+                <div class="menu-col-header">
+                  <h3 class="menu-col-title">Sides</h3>
+                </div>
+                <ul class="menu-list">
+                  <li class="menu-item">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Patatas fritas</span>
+                    </div>
+                    <div class="menu-item-price-single">3,90</div>
+                  </li>
+                  <li class="menu-item">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Patatas Russel</span>
+                      <span class="menu-item-desc">Con salsa mil islas y bacon crocante</span>
+                    </div>
+                    <div class="menu-item-price-single">5,90</div>
+                  </li>
+                  <li class="menu-item">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Patatas Torch</span>
+                      <span class="menu-item-desc">Con cheddar y bacon crocante</span>
+                    </div>
+                    <div class="menu-item-price-single">5,90</div>
+                  </li>
+                  <li class="menu-item">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Boniatos</span>
+                      <span class="menu-item-desc">Con salsa a elección</span>
+                    </div>
+                    <div class="menu-item-price-single">5,90</div>
+                  </li>
+                  <li class="menu-item">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Muzzarellitas <em>8 unds.</em></span>
+                      <span class="menu-item-desc">Con salsa a elección</span>
+                    </div>
+                    <div class="menu-item-price-single">8,50</div>
+                  </li>
+                  <li class="menu-item">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Nuggets <em>8 unds.</em></span>
+                      <span class="menu-item-desc">Con salsa a elección</span>
+                    </div>
+                    <div class="menu-item-price-single">8,50</div>
+                  </li>
+                  <li class="menu-item">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Aros de cebolla <em>8 unds.</em></span>
+                      <span class="menu-item-desc">Con salsa a elección</span>
+                    </div>
+                    <div class="menu-item-price-single">8,50</div>
+                  </li>
+                </ul>
+                <div class="menu-salsas">
+                  <span class="menu-salsas-label">Salsas</span>
+                  barbacoa · cheddar · alioli
+                </div>
+              </div>
+
+              <!-- BEBIDAS + POSTRES -->
+              <div class="menu-col menu-col--right">
+
+                <div class="menu-col-header">
+                  <h3 class="menu-col-title">Bebidas</h3>
+                </div>
+                <ul class="menu-list">
+                  <li class="menu-item"><div class="menu-item-left"><span class="menu-item-name">Agua mineral</span></div><div class="menu-item-price-single">2,20</div></li>
+                  <li class="menu-item"><div class="menu-item-left"><span class="menu-item-name">Aquarius</span></div><div class="menu-item-price-single">2,50</div></li>
+                  <li class="menu-item"><div class="menu-item-left"><span class="menu-item-name">Coca-Cola</span></div><div class="menu-item-price-single">2,50</div></li>
+                  <li class="menu-item"><div class="menu-item-left"><span class="menu-item-name">Estrella Damm</span></div><div class="menu-item-price-single">2,90</div></li>
+                  <li class="menu-item"><div class="menu-item-left"><span class="menu-item-name">Estrella Damm 0,0</span></div><div class="menu-item-price-single">2,90</div></li>
+                  <li class="menu-item"><div class="menu-item-left"><span class="menu-item-name">Turia</span></div><div class="menu-item-price-single">3,50</div></li>
+                  <li class="menu-item"><div class="menu-item-left"><span class="menu-item-name">Damm Lemon</span></div><div class="menu-item-price-single">3,20</div></li>
+                  <li class="menu-item"><div class="menu-item-left"><span class="menu-item-name">Quilmes Argentina</span></div><div class="menu-item-price-single">3,70</div></li>
+                  <li class="menu-item"><div class="menu-item-left"><span class="menu-item-name">Copa de vino</span></div><div class="menu-item-price-single">3,20</div></li>
+                </ul>
+
+                <div class="menu-divider"></div>
+
+                <div class="menu-col-header">
+                  <h3 class="menu-col-title">Postres</h3>
+                </div>
+                <ul class="menu-list">
+                  <li class="menu-item menu-item--postre">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Franui <span class="menu-item-badge">®</span></span>
+                      <span class="menu-item-desc">Frambuesas frescas bañadas en doble chocolate</span>
+                      <span class="menu-item-desc">Chocolate blanco + chocolate con leche</span>
+                      <span class="menu-item-desc">Chocolate blanco + chocolate amargo</span>
+                    </div>
+                    <div class="menu-item-price-single">5,50</div>
+                  </li>
+                </ul>
+
+              </div>
+
+            </div><!-- /.menu-grid -->
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- DELIVERY & TAKE AWAY -->
+    <section id="pedir" class="section section--auto" data-route="pedir">
+      <div class="wrap">
+        <div class="prod-eyebrow">
+          <span class="prod-eyebrow-text">Delivery &amp; Take away</span>
+          <span class="prod-eyebrow-rule"></span>
+        </div>
+        <h2 class="h2">Terry's en tu casa</h2>
+        <p class="muted sectionLead">Pedí por tu app de siempre o hacé tu pedido para retirar en el local.</p>
+        <div class="pedidosLayout">
+
+        <!-- Delivery apps -->
+        <div class="pedidosGroup">
+          <div class="pedidosGroupHead">
+            <span class="pedidosGroupLabel">Delivery · te lo llevamos</span>
+            <span class="pedidosDeliveryTag">
+              <svg class="deliveryTruckIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16,8 20,8 23,11 23,16 16,16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+              Pedí desde casa
+            </span>
+          </div>
+          <div class="grid3">
+
+            <!-- Glovo -->
+            <a class="card linkCard deliveryCard" href="https://glovoapp.com/es/es/barcelona/stores/terrys-burgers-barcelona" target="_blank" rel="noopener">
+              <div class="deliveryLogo glovo-logo">
+                <img src="assets/img/plataformas/glovo.png" alt="Glovo"
+                     class="deliveryLogoImg"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                <svg class="deliveryLogoFallback" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="display:none">
+                  <text x="24" y="34" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-weight="900" font-size="30">G</text>
+                </svg>
+              </div>
+              <div class="linkTitle">Glovo</div>
+              <div class="muted">Pedir ahora →</div>
+            </a>
+
+            <!-- Uber Eats -->
+            <a class="card linkCard deliveryCard" href="https://www.ubereats.com/es-en/store/terrys-burgers/BfqvXB5_TsWnTjZWRCB_ag?diningMode=DELIVERY&mod=merchantUnavailable&modctx=%257B%2522storeUuid%2522%253A%252205faaf5c-1e7f-4ec5-a74e-365644207f6a%2522%257D&ps=1&surfaceName=" target="_blank" rel="noopener">
+              <div class="deliveryLogo uber-logo">
+                <img src="assets/img/plataformas/ubereats.png" alt="Uber Eats"
+                     class="deliveryLogoImg"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                <svg class="deliveryLogoFallback" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="display:none">
+                  <text x="24" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-weight="900" font-size="12">UBER</text>
+                  <text x="24" y="36" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-weight="900" font-size="12">EATS</text>
+                </svg>
+              </div>
+              <div class="linkTitle">Uber Eats</div>
+              <div class="muted">Pedir ahora →</div>
+            </a>
+
+            <!-- Just Eat -->
+            <a class="card linkCard deliveryCard" href="https://www.just-eat.es/restaurants-terrys-burgers-barcelona/menu?shipping=pickup" target="_blank" rel="noopener">
+              <div class="deliveryLogo justeat-logo">
+                <img src="assets/img/plataformas/justeat.png" alt="Just Eat"
+                     class="deliveryLogoImg"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                <svg class="deliveryLogoFallback" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="display:none">
+                  <text x="24" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-weight="900" font-size="12">JUST</text>
+                  <text x="24" y="36" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-weight="900" font-size="12">EAT</text>
+                </svg>
+              </div>
+              <div class="linkTitle">Just Eat</div>
+              <div class="muted">Pedir ahora →</div>
+            </a>
+
+          </div>
+        </div>
+
+        <!-- Take away -->
+        <div class="pedidosGroup">
+          <div class="pedidosGroupLabel">Take away · pasá a buscarlo</div>
+          <div class="card takeAway">
+            <div class="takeAwayContent">
+              <div class="takeAwayInfo">
+                <div class="linkTitle">Retirá en el local</div>
+                <p class="muted">Hacé tu pedido online y pasá a buscarlo por Taquígraf Garriga 143. Sin esperas, sin colas.</p>
+                <p class="small">Mediodía 13:00–15:30 · Noche 20:00–23:00 · todos los días</p>
+                <a class="pill small" href="https://smartmenu.agorapos.com/?id=eau1gphq&workplaceId=ghgys9hf#/" target="_blank" rel="noopener">Pedir Take Away →</a>
+              </div>
+              <div class="takeAwayQRWrap">
+                <div id="qrCanvas"></div>
+                <div class="qrLabel">Escanear para pedir</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- RESERVAS -->
+    <section id="reservas" class="section section--auto" data-route="reservas">
+      <div class="wrap">
+        <div class="prod-eyebrow">
+          <span class="prod-eyebrow-text">Reservas</span>
+          <span class="prod-eyebrow-rule"></span>
+        </div>
+
+        <div class="resGrid">
+          <div class="resInfo">
+            <h2 class="h2">Reservá tu mesa</h2>
+            <p class="muted sectionLead">Elegí día, hora y cuántos son. Te confirmamos la reserva por WhatsApp o llamada.</p>
+
+            <ul class="infoList">
+              <li><span class="infoK">Mediodía</span><span>13:00 – 15:00</span></li>
+              <li><span class="infoK">Noche</span><span>20:00 – 22:30</span></li>
+              <li><span class="infoK">Grupos</span><span>Hasta 12 personas online</span></li>
+            </ul>
+            <p class="note">¿Son más de 12 o querés el local para un evento? Escribinos desde <a href="#eventos" class="mailLink">Eventos</a> y armamos algo a medida.</p>
+            <p class="note">¿Es para hoy y en menos de una hora? Mejor <a href="tel:+34615351131" class="mailLink">llamanos</a>.</p>
+          </div>
+
+          <div class="card resCard">
+            <form id="resForm" class="joinFormEl" novalidate>
+              <div class="formRow3">
+                <div class="formGroup">
+                  <label class="formLabel" for="resFecha">Día</label>
+                  <input class="formInput" id="resFecha" type="date" name="fecha" required />
+                </div>
+                <div class="formGroup">
+                  <label class="formLabel" for="resHora">Hora</label>
+                  <select class="formInput formSelect" id="resHora" name="hora" required>
+                    <option value="">Elegí el día</option>
+                  </select>
+                </div>
+                <div class="formGroup">
+                  <label class="formLabel" for="resPersonas">Personas</label>
+                  <select class="formInput formSelect" id="resPersonas" name="personas" required></select>
+                </div>
+              </div>
+
+              <div class="formRow2">
+                <div class="formGroup">
+                  <label class="formLabel" for="resNombre">Nombre</label>
+                  <input class="formInput" id="resNombre" type="text" name="nombre" autocomplete="name" maxlength="80" placeholder="Tu nombre" required />
+                </div>
+                <div class="formGroup">
+                  <label class="formLabel" for="resTel">Teléfono / WhatsApp</label>
+                  <input class="formInput" id="resTel" type="tel" name="telefono" autocomplete="tel" maxlength="30" placeholder="+34 600 000 000" required />
+                </div>
+              </div>
+
+              <div class="formGroup">
+                <label class="formLabel" for="resEmail">Email <span class="optional">(opcional)</span></label>
+                <input class="formInput" id="resEmail" type="email" name="email" autocomplete="email" maxlength="120" placeholder="tu@email.com" />
+              </div>
+
+              <div class="formGroup">
+                <label class="formLabel" for="resComentario">Comentario <span class="optional">(opcional)</span></label>
+                <textarea class="formInput formTextarea" id="resComentario" name="comentario" maxlength="500" rows="2" placeholder="Cumpleaños, alergias, silla para bebé, terraza…"></textarea>
+              </div>
+
+              <div class="hp" aria-hidden="true"><label>Web <input type="text" name="web" tabindex="-1" autocomplete="off" /></label></div>
+
+              <label class="check">
+                <input type="checkbox" name="acepto" required />
+                <span>Acepto que Terry's use estos datos solo para gestionar mi reserva.</span>
+              </label>
+
+              <button type="submit" class="pill pill--solid joinSubmit">Pedir reserva →</button>
+              <p class="formMsg" role="status" aria-live="polite"></p>
+            </form>
+
+            <div class="joinSuccess" data-success hidden>
+              <div class="joinSuccessIcon">✓</div>
+              <div class="h4">¡Reserva recibida!</div>
+              <p class="muted" data-resumen></p>
+              <p class="muted">Te escribimos para confirmarla. Si no te llega nada, llamanos al <a class="mailLink" href="tel:+34615351131">615 35 11 31</a>.</p>
+              <button type="button" class="pill ghost small" data-otra>Hacer otra reserva</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EVENTOS -->
+    <section id="eventos" class="section section--auto" data-route="eventos">
+      <div class="wrap">
+        <div class="prod-eyebrow">
+          <span class="prod-eyebrow-text">Eventos</span>
+          <span class="prod-eyebrow-rule"></span>
+        </div>
+        <h2 class="h2">Terry's para tu evento</h2>
+        <p class="muted sectionLead">Cumpleaños, cenas de empresa, partidos o una fiesta en tu casa: ponemos las burgers.</p>
+
+        <div class="grid3 evCards">
+          <button type="button" class="card evCard" data-ev="privado">
+            <span class="evNum">01</span>
+            <span class="linkTitle">Eventos privados</span>
+            <span class="muted">Reservá el local o una zona para tu grupo, con menú cerrado a medida.</span>
+            <span class="evGo">Consultar →</span>
+          </button>
+          <a class="card evCard" href="#agenda">
+            <span class="evNum">02</span>
+            <span class="linkTitle">Agenda</span>
+            <span class="muted">Partidos, noches especiales y fechas temáticas en el local.</span>
+            <span class="evGo">Ver fechas →</span>
+          </a>
+          <button type="button" class="card evCard" data-ev="catering">
+            <span class="evNum">03</span>
+            <span class="linkTitle">Catering</span>
+            <span class="muted">Llevamos Terry's a tu oficina, fiesta o evento en Barcelona.</span>
+            <span class="evGo">Pedir presupuesto →</span>
+          </button>
+        </div>
+
+        <div class="evGrid">
+          <div id="agenda" class="evAgenda">
+            <div class="pedidosGroupLabel">Próximas fechas</div>
+            <ul id="agendaList" class="agendaList">
+              <li class="agendaEmpty muted">Cargando agenda…</li>
+            </ul>
+          </div>
+
+          <div class="card" id="evFormCard">
+            <h3 class="h4 joinFormTitle">Contanos tu evento</h3>
+            <form id="evForm" class="joinFormEl" novalidate>
+              <div class="formGroup">
+                <label class="formLabel" for="evTipo">Tipo</label>
+                <select class="formInput formSelect" id="evTipo" name="tipo" required>
+                  <option value="privado">Evento privado en el local</option>
+                  <option value="catering">Catering fuera del local</option>
+                  <option value="otro">Otra cosa</option>
+                </select>
+              </div>
+              <div class="formRow2">
+                <div class="formGroup">
+                  <label class="formLabel" for="evNombre">Nombre</label>
+                  <input class="formInput" id="evNombre" type="text" name="nombre" autocomplete="name" maxlength="80" placeholder="Tu nombre o empresa" required />
+                </div>
+                <div class="formGroup">
+                  <label class="formLabel" for="evTel">Teléfono / WhatsApp</label>
+                  <input class="formInput" id="evTel" type="tel" name="telefono" autocomplete="tel" maxlength="30" placeholder="+34 600 000 000" required />
+                </div>
+              </div>
+              <div class="formRow3">
+                <div class="formGroup">
+                  <label class="formLabel" for="evFecha">Fecha <span class="optional">(aprox.)</span></label>
+                  <input class="formInput" id="evFecha" type="date" name="fecha" />
+                </div>
+                <div class="formGroup">
+                  <label class="formLabel" for="evPersonas">Personas</label>
+                  <input class="formInput" id="evPersonas" type="number" name="personas" min="1" max="1000" inputmode="numeric" placeholder="30" />
+                </div>
+                <div class="formGroup">
+                  <label class="formLabel" for="evEmail">Email <span class="optional">(opc.)</span></label>
+                  <input class="formInput" id="evEmail" type="email" name="email" autocomplete="email" maxlength="120" placeholder="tu@email.com" />
+                </div>
+              </div>
+              <div class="formGroup">
+                <label class="formLabel" for="evMensaje">Contanos un poco más</label>
+                <textarea class="formInput formTextarea" id="evMensaje" name="mensaje" maxlength="1500" rows="3" placeholder="Qué festejan, horario, presupuesto, si necesitan algo especial…"></textarea>
+              </div>
+              <div class="hp" aria-hidden="true"><label>Web <input type="text" name="web" tabindex="-1" autocomplete="off" /></label></div>
+              <label class="check">
+                <input type="checkbox" name="acepto" required />
+                <span>Acepto que Terry's use estos datos solo para responder mi consulta.</span>
+              </label>
+              <button type="submit" class="pill pill--solid joinSubmit">Enviar consulta →</button>
+              <p class="formMsg" role="status" aria-live="polite"></p>
+            </form>
+            <div class="joinSuccess" data-success hidden>
+              <div class="joinSuccessIcon">✓</div>
+              <div class="h4">¡Consulta enviada!</div>
+              <p class="muted">Te escribimos en las próximas 48 horas con una propuesta.</p>
+              <button type="button" class="pill ghost small" data-otra>Enviar otra</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRABAJA CON NOSOTROS -->
+    <section id="trabaja" class="section" data-route="trabaja">
+      <div class="wrap">
+
+        <div class="joinHeader">
+          <span class="eyebrow">Únete al equipo</span>
+          <h2 class="h2">Trabaja con nosotros</h2>
+        </div>
+
+        <div class="joinGrid">
+
+          <!-- Posiciones abiertas -->
+          <div class="joinPositions">
+            <div class="joinPositionsTitle">Posiciones abiertas</div>
+            <div class="joinPositionItem">
+              <span>Cocina</span>
+              <span class="joinBadge">Disponible</span>
+            </div>
+            <div class="joinPositionItem">
+              <span>Sala &amp; Atención</span>
+              <span class="joinBadge">Disponible</span>
+            </div>
+            <div class="joinPositionItem">
+              <span>Delivery</span>
+              <span class="joinBadge">Disponible</span>
+            </div>
+          </div>
+
+          <!-- Formulario -->
+          <div class="card joinCard">
+            <div id="joinFormWrap">
+              <h3 class="h4 joinFormTitle">Envianos tu CV</h3>
+
+              <form id="joinFormEl" class="joinFormEl" novalidate>
+                <div class="formGroup">
+                  <label class="formLabel" for="joinNombre">Nombre completo</label>
+                  <input class="formInput" id="joinNombre" type="text" name="nombre" placeholder="Tu nombre" required />
+                </div>
+
+                <div class="formGroup">
+                  <label class="formLabel" for="joinEmail">Email</label>
+                  <input class="formInput" id="joinEmail" type="email" name="email" placeholder="tu@email.com" required />
+                </div>
+
+                <div class="formGroup">
+                  <label class="formLabel" for="joinPuesto">¿Qué posición te interesa?</label>
+                  <select class="formInput formSelect" id="joinPuesto" name="puesto">
+                    <option value="">Seleccioná una opción</option>
+                    <option value="cocina">Cocina</option>
+                    <option value="sala">Sala / Atención al cliente</option>
+                    <option value="delivery">Delivery</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </div>
+
+                <div class="formGroup">
+                  <label class="formLabel" for="joinMensaje">Mensaje (opcional)</label>
+                  <textarea class="formInput formTextarea" id="joinMensaje" name="mensaje" placeholder="Contanos un poco sobre vos, tu experiencia y por qué querés ser parte..." rows="3"></textarea>
+                </div>
+
+                <p class="note">Al tocar el botón se abre tu correo con los datos cargados: adjuntá tu CV y envialo.</p>
+
+                <button type="submit" class="pill pill--solid joinSubmit">Preparar mail con mi candidatura →</button>
+              </form>
+            </div>
+
+            <!-- Éxito -->
+            <div id="joinSuccess" class="joinSuccess" hidden>
+              <div class="joinSuccessIcon">✓</div>
+              <div class="h4">¡Ya casi!</div>
+              <p class="muted">Se abrió tu correo con los datos cargados: adjuntá el CV y mandalo. Si no se abrió, escribinos a info@terrysburgers.com.</p>
+            </div>
+
+            <div class="note joinNote">
+              También podés escribirnos directamente a
+              <a href="mailto:info@terrysburgers.com" class="mailLink">info@terrysburgers.com</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACTO -->
+    <section id="contacto" class="section" data-route="contacto">
+      <div class="wrap">
+        <h2 class="h2">Contacto &amp; info</h2>
+
+        <div class="card grid2">
+          <div class="contactInfo">
+            <div class="h4">Terry's Burgers Barcelona</div>
+            <p class="contactAddress">
+              <svg class="contactIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+              Taquigraf Garriga 143, Bajos 2<br>08029 Barcelona
+            </p>
+
+            <div class="hours">
+              <div class="hoursRow hoursRow--title">
+                <svg class="contactIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span class="hoursLabel">Horarios</span>
+              </div>
+              <div class="hoursRow">
+                <span>Lunes</span>
+                <span>13:00 – 15:30 &nbsp;·&nbsp; 20:00 – 23:00</span>
+              </div>
+              <div class="hoursRow">
+                <span>Martes</span>
+                <span>13:00 – 15:30 &nbsp;·&nbsp; 20:00 – 23:00</span>
+              </div>
+              <div class="hoursRow">
+                <span>Miércoles</span>
+                <span>13:00 – 15:30 &nbsp;·&nbsp; 20:00 – 23:00</span>
+              </div>
+              <div class="hoursRow">
+                <span>Jueves</span>
+                <span>13:00 – 15:30 &nbsp;·&nbsp; 20:00 – 23:00</span>
+              </div>
+              <div class="hoursRow">
+                <span>Viernes</span>
+                <span>13:00 – 15:30 &nbsp;·&nbsp; 20:00 – 23:00</span>
+              </div>
+              <div class="hoursRow">
+                <span>Sábados</span>
+                <span>13:00 – 15:30 &nbsp;·&nbsp; 20:00 – 23:00</span>
+              </div>
+              <div class="hoursRow">
+                <span>Domingos</span>
+                <span>13:00 – 15:30 &nbsp;·&nbsp; 20:00 – 23:00</span>
+              </div>
+            </div>
+
+            <div class="ctaRow">
+              <a class="pill" href="https://maps.app.goo.gl/B2WL1Zkvo5JmaXwbA" target="_blank" rel="noopener">Abrir en Google Maps</a>
+              <a class="pill ghost" href="tel:+34615351131">Llamar · 615 35 11 31</a>
+              <a class="pill ghost" href="#reservas">Reservar mesa</a>
+            </div>
+            <div class="contactLinks">
+              <a class="mailLink" href="mailto:info@terrysburgers.com">info@terrysburgers.com</a>
+              <a class="mailLink" href="https://www.instagram.com/terrysburgers.bcn/" target="_blank" rel="noopener">Instagram · @terrysburgers.bcn</a>
+            </div>
+          </div>
+
+          <div class="mapBox">
+            <iframe
+              class="mapIframe"
+              src="https://maps.google.com/maps?q=41.3899569,2.1390489&hl=es&z=17&output=embed"
+              title="Terry's Burgers en Google Maps"
+              allowfullscreen
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+          </div>
+        </div>
+
+        <footer class="footer">
+          <nav class="footerNav" aria-label="Más enlaces">
+            <a href="#historia">Historia</a>
+            <a href="#trabaja">Trabajá con nosotros</a>
+            <a href="#reservas">Reservas</a>
+            <a href="#eventos">Eventos</a>
+            <a href="https://www.instagram.com/terrysburgers.bcn/" target="_blank" rel="noopener">Instagram</a>
+          </nav>
+          <div class="muted">© <span id="year"></span> Terry's Burgers · Made in Argentina · Barcelona</div>
+        </footer>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL CARTA -->
+  <div class="modal" id="modal" hidden aria-hidden="true">
+    <div class="modalOverlay" id="modalOverlay"></div>
+    <div class="modalCard" role="dialog" aria-label="Carta ampliada">
+      <button class="iconBtn modalClose" id="closeMenu" aria-label="Cerrar">✕</button>
+      <img src="assets/img/carta.jpg" alt="Carta ampliada Terry's Burgers" />
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="app.js?v=3"></script>
+</body>
+</html>
