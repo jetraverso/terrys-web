@@ -51,7 +51,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&family=Roboto+Slab:wght@900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css?v=30" />
+  <link rel="stylesheet" href="styles.css?v=31" />
 </head>
 <body>
 
@@ -825,12 +825,6 @@
             <h2 class="h2">Reservá tu mesa</h2>
             <p class="muted sectionLead">Elegí día, hora y cuántos son. Te confirmamos la reserva por WhatsApp o llamada.</p>
 
-            <ul class="infoList">
-              <li><span class="infoK">Mediodía</span><span>13:00 – 15:00</span></li>
-              <li><span class="infoK">Noche</span><span>20:00 – 22:30</span></li>
-              <li><span class="infoK">Grupos</span><span>Hasta 12 personas online</span></li>
-            </ul>
-            <p class="note">¿Son más de 12 o querés el local para un evento? Escribinos desde <a href="#eventos" class="mailLink">Eventos</a> y armamos algo a medida.</p>
             <p class="note">¿Es para hoy y en menos de una hora? Mejor <a href="tel:+34615351131" class="mailLink">llamanos</a>.</p>
           </div>
 
@@ -860,7 +854,14 @@
                 </div>
                 <div class="formGroup">
                   <label class="formLabel" for="resTel">Teléfono / WhatsApp</label>
-                  <input class="formInput" id="resTel" type="tel" name="telefono" autocomplete="tel" maxlength="30" placeholder="+34 600 000 000" required />
+                  <div class="telRow">
+                    <div class="telPaisWrap">
+                      <select class="formInput formSelect telPais" id="resPais" aria-label="País del teléfono"></select>
+                      <span class="telPaisTxt" aria-hidden="true"></span>
+                    </div>
+                    <input class="formInput" id="resTel" type="tel" autocomplete="tel-national" inputmode="tel" maxlength="20" placeholder="600 000 000" required />
+                  </div>
+                  <input type="hidden" name="telefono" />
                 </div>
               </div>
 
@@ -924,6 +925,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="app.js?v=12"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>

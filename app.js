@@ -665,7 +665,7 @@ const CONFIG = {
   telefono: "615 35 11 31",
   // Turnos con reserva (cada 15 min). Si cambian, cambiarlo también en web_reservar().
   turnos: [["13:00", "15:00"], ["20:00", "22:30"]],
-  maxPersonas: 12,
+  maxPersonas: 30,   // si cambia, cambiarlo también en web_reservar() y en la tabla reservas
   diasAdelante: 90,
 };
 
@@ -753,11 +753,47 @@ function setupEnvio(form, fn, alOk){
 /* ------------------------------------------------------------------ */
 /* RESERVAS                                                             */
 /* ------------------------------------------------------------------ */
+// Países para el teléfono: España primero (por defecto), después el resto.
+const PAISES = [
+  ["ES", "España", "34"], ["AR", "Argentina", "54"], ["UY", "Uruguay", "598"], ["CL", "Chile", "56"],
+  ["PY", "Paraguay", "595"], ["BO", "Bolivia", "591"], ["PE", "Perú", "51"], ["EC", "Ecuador", "593"],
+  ["CO", "Colombia", "57"], ["VE", "Venezuela", "58"], ["MX", "México", "52"], ["CU", "Cuba", "53"],
+  ["DO", "Rep. Dominicana", "1"], ["BR", "Brasil", "55"], ["US", "Estados Unidos", "1"], ["CA", "Canadá", "1"],
+  ["PT", "Portugal", "351"], ["FR", "Francia", "33"], ["IT", "Italia", "39"], ["AD", "Andorra", "376"],
+  ["GB", "Reino Unido", "44"], ["IE", "Irlanda", "353"], ["DE", "Alemania", "49"], ["NL", "Países Bajos", "31"],
+  ["BE", "Bélgica", "32"], ["CH", "Suiza", "41"], ["AT", "Austria", "43"], ["SE", "Suecia", "46"],
+  ["NO", "Noruega", "47"], ["DK", "Dinamarca", "45"], ["FI", "Finlandia", "358"], ["PL", "Polonia", "48"],
+  ["RO", "Rumanía", "40"], ["UA", "Ucrania", "380"], ["RU", "Rusia", "7"], ["GR", "Grecia", "30"],
+  ["MA", "Marruecos", "212"], ["IL", "Israel", "972"], ["TR", "Turquía", "90"], ["IN", "India", "91"],
+  ["CN", "China", "86"], ["JP", "Japón", "81"], ["AU", "Australia", "61"],
+];
+const bandera = cc => String.fromCodePoint(...[...cc].map(c => 0x1F1A5 + c.charCodeAt(0)));
+
+function setupTelefono(form){
+  const pais = $("#resPais", form), num = $("#resTel", form), oculto = form.elements.telefono;
+  // En la lista se ve "🇪🇸 +34  España"; con el desplegable cerrado, solo "🇪🇸 +34".
+  pais.innerHTML = PAISES.map(([cc, nombre, cod]) =>
+    `<option value="${cod}" data-cc="${cc}">${bandera(cc)} +${cod}  ${nombre}</option>`).join("");
+  const txt = $(".telPaisTxt", form);
+  const sync = () => {
+    const o = pais.selectedOptions[0];
+    txt.textContent = `${bandera(o.dataset.cc)} +${o.value}`;
+    let n = num.value.replace(/[^0-9 +().-]/g, "").trim();
+    if (n.startsWith("00")) n = "+" + n.slice(2);
+    oculto.value = !n ? "" : n.startsWith("+") ? n : `+${pais.value} ${n}`;   // si ya puso +xx, se respeta
+  };
+  pais.addEventListener("change", sync);
+  num.addEventListener("input", sync);
+  form.addEventListener("reset-ok", () => { pais.selectedIndex = 0; sync(); });
+  sync();
+}
+
 function setupReservas(){
   const form = $("#resForm");
   if (!form) return;
   const fecha = form.elements.fecha, hora = form.elements.hora, pers = form.elements.personas;
 
+  setupTelefono(form);
   pers.innerHTML = Array.from({ length: CONFIG.maxPersonas }, (_, i) =>
     `<option value="${i + 1}"${i === 1 ? " selected" : ""}>${i + 1} ${i ? "personas" : "persona"}</option>`).join("");
 
