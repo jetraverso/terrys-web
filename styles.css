@@ -2659,3 +2659,42 @@ html{ overflow-x: clip; }
    "Reservar" llega arriba igual que las demás (si no, el final de la página la frena). */
 #reservas{ min-height: 100svh; padding-top: 68px; }
 @media (max-width: 620px){ #reservas{ padding-top: 74px; } }
+
+/* Teléfonos: la barra de secciones del inicio en 2 renglones, sin nada escondido a la derecha */
+@media (max-width: 620px){
+  .hero-bottomnav{ flex-wrap: wrap; justify-content: center; overflow: visible; gap: 2px 4px; padding: 6px; border-radius: 20px; }
+  .hero-navbtn{ font-size: clamp(9.5px, 2.9vw, 10.5px); padding: 7px clamp(5px, 2vw, 8px); letter-spacing: 0; white-space: nowrap; }
+  /* corte fijo: arriba Historia → Delivery, abajo Eventos → Reservar */
+  .hero-bottomnav::after{ content: ""; flex-basis: 100%; height: 0; order: 1; }
+  .hero-navbtn:nth-child(n+5){ order: 2; }
+  /* el inicio es 74px más alto que la pantalla (lugar del header): la barra se sube para verse entera */
+  .heroDock{ bottom: calc(74px + 14px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* Botones fijos abajo (Hacer pedido + Reservar) */
+.fab{
+  position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 70;
+  display: flex; gap: 8px; padding: 6px;
+  border-radius: 999px; border: 1px solid var(--line2);
+  background: rgba(10,10,10,.72); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.45);
+  opacity: 0; translate: -50% 24px; pointer-events: none;
+  transition: opacity .35s ease, translate .45s cubic-bezier(.2,.8,.2,1);
+}
+.fab.isOn{ opacity: 1; translate: -50% 0; pointer-events: auto; }
+.fabBtn{
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 150px; padding: 13px 22px; border-radius: 999px;
+  font-size: 13px; font-weight: 600; letter-spacing: .3px; text-decoration: none; white-space: nowrap;
+  color: var(--fg); background: rgba(245,245,245,.06); border: 1px solid rgba(245,245,245,.14);
+  transition: background .18s ease, transform .18s ease;
+}
+.fabBtn:hover{ background: rgba(245,245,245,.12); transform: translateY(-1px); }
+.fabBtn--solid{ background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.fabBtn--solid:hover{ background: #fff; }
+@media (max-width: 620px){
+  .fab{ left: 12px; right: 12px; translate: 0 24px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+  .fab.isOn{ translate: 0 0; }
+  .fabBtn{ flex: 1; min-width: 0; padding: 13px 10px; }
+}
+@media (prefers-reduced-motion: reduce){ .fab{ transition: opacity .2s ease; } }

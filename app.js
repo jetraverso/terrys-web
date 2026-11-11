@@ -667,6 +667,8 @@ const CONFIG = {
   turnos: [["13:00", "15:00"], ["20:00", "22:30"]],
   maxPersonas: 30,   // si cambia, cambiarlo también en web_reservar() y en la tabla reservas
   diasAdelante: 90,
+  // Página para pedir take away (cuando esté armada). Vacío = el botón "Hacer pedido" baja a Delivery & Take away.
+  pedidoUrl: "",
 };
 
 async function rpc(fn, body){
@@ -873,6 +875,33 @@ async function cargarAgenda(){
 }
 
 /* ------------------------------------------------------------------ */
+/* BOTONES FIJOS: Hacer pedido + Reservar                               */
+/* ------------------------------------------------------------------ */
+// Aparecen cuando ya no se ve la barra del inicio y se esconden en Reservas
+// (ahí ya está el formulario) para no tapar nada.
+function setupFab(){
+  const fab = $("#fab"), hero = $(".hero-bottomnav"), res = $("#reservas");
+  if (!fab || !hero || !res) return;
+  if (CONFIG.pedidoUrl) $("#fabPedido").href = CONFIG.pedidoUrl;
+  let visto = null;
+  const revisar = () => {
+    const alto = window.innerHeight;
+    // apenas se empieza a bajar, cuando la barra del inicio ya no queda pegada a los botones
+    const pasoHero = desplazable().scrollTop > 40 && hero.getBoundingClientRect().bottom < alto - 90;
+    const enReservas = res.getBoundingClientRect().top < alto * .65;        // Reservas ocupa la pantalla
+    const ver = pasoHero && !enReservas;
+    if (ver === visto) return;
+    visto = ver;
+    fab.classList.toggle("isOn", ver);
+    fab.inert = !ver;
+  };
+  document.body.addEventListener("scroll", revisar, { passive: true });
+  window.addEventListener("scroll", revisar, { passive: true });
+  window.addEventListener("resize", revisar);
+  revisar();
+}
+
+/* ------------------------------------------------------------------ */
 /* INIT                                                                 */
 /* ------------------------------------------------------------------ */
 function init(){
@@ -886,6 +915,7 @@ function init(){
   setupEventos();
   setupScrollSuave();
   setupAparecer();
+  setupFab();
 }
 
 document.addEventListener("DOMContentLoaded", init);

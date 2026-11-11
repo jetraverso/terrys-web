@@ -51,7 +51,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&family=Roboto+Slab:wght@900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css?v=31" />
+  <link rel="stylesheet" href="styles.css?v=33" />
 </head>
 <body>
 
@@ -915,6 +915,12 @@
 
   </main>
 
+  <!-- Botones fijos abajo: aparecen al bajar del inicio -->
+  <div class="fab" id="fab" inert>
+    <a class="fabBtn" href="#pedir" id="fabPedido">Hacer pedido</a>
+    <a class="fabBtn fabBtn--solid" href="#reservas">Reservar</a>
+  </div>
+
   <!-- MODAL CARTA -->
   <div class="modal" id="modal" hidden aria-hidden="true">
     <div class="modalOverlay" id="modalOverlay"></div>
@@ -925,6 +931,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="app.js?v=13"></script>
+  <script src="app.js?v=14"></script>
 </body>
 </html>
