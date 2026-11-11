@@ -1,7 +1,8 @@
 /* Terry's Burgers · Pedido take away
    Paso 1: cómo (recoger en el local) · Paso 2: día y hora · Paso 3: productos · Paso 4: resumen.
-   El pedido va al Supabase del admin con web_pedir() (que recalcula el total con sus propios
-   precios) y aparece en la solapa Web de admin.terrysburgers.com. Por ahora se paga al retirar. */
+   Los productos se leen de la tabla "productos" (se editan en la solapa Pedidos del admin:
+   precios, fotos, take away / terraza). El pedido va a web_pedir(), que cobra con esos mismos
+   precios, y aparece en la solapa Pedidos de admin.terrysburgers.com. Por ahora se paga al retirar. */
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -21,76 +22,66 @@ const CONFIG = {
   diasAdelante: 1,      // hoy y mañana
 };
 
-const SALSAS = ["Barbacoa", "Cheddar", "Alioli"];
-const IMG = "../assets/img/burgers/";
+const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-// Mismos productos y precios que la carta (index.html → sección Carta) y que web_pedir() en
-// administracion/schema.sql (parte 12): si cambia un precio, cambiarlo en los tres lugares.
-const BURGERS = [
-  { id: "terry",  nombre: "Terry",  desc: "Con doble cheddar",                                simple: 7.90, doble: 9.90,  img: "terry.jpg" },
-  { id: "torch",  nombre: "Torch",  desc: "Con doble cheddar y bacon",                        simple: 9.50, doble: 11.50, img: "torch.jpg" },
-  { id: "russel", nombre: "Russel", desc: "Con cheddar, lechuga, tomate y salsa mil islas",   simple: 9.00, doble: 11.00, img: "russel.jpg" },
-  { id: "zulma",  nombre: "Zulma",  desc: "Con cheddar, ketchup, mostaza y cebolla picada",   simple: 9.00, doble: 11.00, img: "zulma.jpg" },
-  { id: "rumpi",  nombre: "Rumpi",  desc: "Con cheddar y cebolla smasheada",                  simple: 9.00, doble: 11.00, img: "rumpy.jpg" },
-  { id: "buba",   nombre: "Buba",   desc: "Con muzzarellitas, cheddar y barbacoa",            simple: 9.50, doble: 11.50, img: "buba.jpg" },
-];
+/* ------------------------------------------------------------------ */
+/* CARTA (desde la tabla productos del admin)                           */
+/* ------------------------------------------------------------------ */
+// Cada línea del carrito es "producto|variante|salsa" (variante: simple/doble o vacío; salsa o vacío).
+const clave = (id, variante = "", salsa = "") => `${id}|${variante}|${salsa}`;
+const NOMBRES_CAT = { burgers: "Hamburguesas", picar: "Para picar", bebidas: "Bebidas", postres: "Postres" };
+let CATEGORIAS = [];
+let PRODUCTOS = {};
+let cartaLista = false, cartaError = false;
 
-const CATEGORIAS = [
-  {
-    id: "burgers", nombre: "Hamburguesas",
-    grupos: [
-      { titulo: "Simples", sub: "Un medallón de carne de 100 g en pan brioche",
-        items: BURGERS.map(b => ({ id: `${b.id}-simple`, nombre: b.nombre, extra: "Simple", desc: b.desc, precio: b.simple, img: IMG + b.img })) },
-      { titulo: "Dobles", sub: "Dos medallones de carne de 100 g en pan brioche",
-        items: BURGERS.map(b => ({ id: `${b.id}-doble`, nombre: b.nombre, extra: "Doble", desc: b.desc, precio: b.doble, img: IMG + b.img })) },
-    ],
-  },
-  {
-    id: "picar", nombre: "Para picar",
-    grupos: [{ items: [
-      { id: "patatas",       nombre: "Patatas fritas",  precio: 4.00 },
-      { id: "patatas-russel", nombre: "Patatas Russel", desc: "Con salsa mil islas y bacon crocante", precio: 6.00 },
-      { id: "patatas-torch", nombre: "Patatas Torch",   desc: "Con cheddar y bacon crocante", precio: 6.00 },
-      { id: "boniatos",      nombre: "Boniatos",        precio: 6.00 },
-      { id: "muzzarellitas", nombre: "Muzzarellitas",   desc: "8 unidades · elegí la salsa", precio: 8.50, salsas: true },
-      { id: "nuggets",       nombre: "Nuggets",         desc: "8 unidades · elegí la salsa", precio: 8.50, salsas: true },
-      { id: "aros",          nombre: "Aros de cebolla", desc: "8 unidades · elegí la salsa", precio: 8.50, salsas: true },
-    ] }],
-  },
-  {
-    id: "bebidas", nombre: "Bebidas",
-    grupos: [{ items: [
-      { id: "agua",         nombre: "Agua mineral",      precio: 2.20 },
-      { id: "aquarius",     nombre: "Aquarius",          precio: 2.50 },
-      { id: "cocacola",     nombre: "Bebidas Coca-Cola", precio: 2.50 },
-      { id: "estrella",     nombre: "Estrella Damm",     precio: 2.90 },
-      { id: "estrella00",   nombre: "Estrella Damm 0,0", precio: 2.90 },
-      { id: "turia",        nombre: "Turia",             precio: 3.50 },
-      { id: "damm-lemon",   nombre: "Damm Lemon",        precio: 3.20 },
-      { id: "quilmes",      nombre: "Quilmes Argentina", precio: 3.70 },
-      { id: "vino",         nombre: "Copa de vino",      precio: 3.20 },
-    ] }],
-  },
-  {
-    id: "postres", nombre: "Postres",
-    grupos: [{ items: [
-      { id: "franui", nombre: "Franui", desc: "Frambuesas frescas bañadas en doble chocolate", precio: 5.50 },
-    ] }],
-  },
-];
+function armarCarta(filas){
+  CATEGORIAS = []; PRODUCTOS = {};
+  const item = (r, variante) => {
+    const precio = variante === "doble" ? +r.precio_doble : +r.precio;
+    const extra = variante ? variante[0].toUpperCase() + variante.slice(1) : "";
+    const it = { id: r.id, variante: variante || "", nombre: r.nombre, desc: r.descripcion || "", precio, img: r.foto_url || "",
+                 cat: r.categoria, salsas: r.salsas && r.salsas.length ? r.salsas : null };
+    if (it.salsas) it.salsas.forEach(sa => (PRODUCTOS[clave(r.id, it.variante, sa)] = { ...it, extra: [extra, `Salsa ${sa.toLowerCase()}`].filter(Boolean).join(" · ") }));
+    else PRODUCTOS[clave(r.id, it.variante)] = { ...it, extra };
+    return it;
+  };
+  for (const cat of Object.keys(NOMBRES_CAT)){
+    const l = filas.filter(r => r.categoria === cat);
+    if (!l.length) continue;
+    if (cat === "burgers"){
+      const dobles = l.filter(r => r.precio_doble != null);
+      const grupos = [{ titulo: "Simples", sub: "Un medallón de carne de 100 g en pan brioche", items: l.map(r => item(r, r.precio_doble != null ? "simple" : "")) }];
+      if (dobles.length) grupos.push({ titulo: "Dobles", sub: "Dos medallones de carne de 100 g en pan brioche", items: dobles.map(r => item(r, "doble")) });
+      CATEGORIAS.push({ id: cat, nombre: NOMBRES_CAT[cat], grupos });
+    } else {
+      CATEGORIAS.push({ id: cat, nombre: NOMBRES_CAT[cat], grupos: [{ items: l.map(r => item(r, "")) }] });
+    }
+  }
+}
 
-// Índice de productos: cada salsa es una variante con su propia cantidad.
-const PRODUCTOS = {};
-CATEGORIAS.forEach(c => c.grupos.forEach(g => g.items.forEach(it => {
-  it.cat = c.id;
-  if (it.salsas) SALSAS.forEach(s => (PRODUCTOS[`${it.id}|${s}`] = { ...it, extra: `Salsa ${s.toLowerCase()}` }));
-  else PRODUCTOS[it.id] = it;
-})));
+async function cargarCarta(){
+  try {
+    const r = await fetch(`${CONFIG.supabaseUrl}/rest/v1/productos?select=id,categoria,nombre,descripcion,precio,precio_doble,salsas,foto_url&activo=eq.true&take_away=eq.true&order=orden.asc,nombre.asc`,
+      { headers: { apikey: CONFIG.supabaseKey, Authorization: `Bearer ${CONFIG.supabaseKey}` } });
+    if (!r.ok) throw new Error(`Error ${r.status}`);
+    armarCarta(await r.json());
+    cartaLista = true; cartaError = false;
+    // lo que había en el carrito y ya no está (o cambió) se saca
+    for (const k of Object.keys(estado.items)) if (!PRODUCTOS[k]) delete estado.items[k];
+    if (!CATEGORIAS.some(c => c.id === estado.cat)) estado.cat = CATEGORIAS[0]?.id || "burgers";
+    guardar();
+  } catch {
+    cartaError = true;
+  }
+  if (pasoActual === 3) pintarCatalogo();
+  if (pasoActual === 4) pintarResumen();
+  pintarCarrito();
+}
 
 /* ------------------------------------------------------------------ */
 /* ESTADO (se guarda en este navegador para no perder el pedido)        */
 /* ------------------------------------------------------------------ */
-const CLAVE = "terrys-pedido-v1";
+const CLAVE = "terrys-pedido-v2";
 let estado = { modo: "recoger", dia: null, hora: null, cat: "burgers", items: {} };
 try {
   const g = JSON.parse(localStorage.getItem(CLAVE) || "null");
@@ -206,14 +197,14 @@ function cambiar(id, d){
   if (pasoActual === 4) pintarResumen();
 }
 function stepper(id){
-  return `<div class="stepper" data-q="${id}"></div>`;
+  return `<div class="stepper" data-q="${esc(id)}"></div>`;
 }
 function pintarStepper(el, id){
   const n = cant(id);
   el.classList.toggle("isOn", n > 0);
   el.innerHTML = n
-    ? `<button type="button" class="q" data-menos="${id}" aria-label="Quitar uno">−</button><span class="qN" aria-live="polite">${n}</span><button type="button" class="q" data-mas="${id}" aria-label="Agregar uno">+</button>`
-    : `<button type="button" class="qAdd" data-mas="${id}">Agregar <span aria-hidden="true">+</span></button>`;
+    ? `<button type="button" class="q" data-menos="${esc(id)}" aria-label="Quitar uno">−</button><span class="qN" aria-live="polite">${n}</span><button type="button" class="q" data-mas="${esc(id)}" aria-label="Agregar uno">+</button>`
+    : `<button type="button" class="qAdd" data-mas="${esc(id)}">Agregar <span aria-hidden="true">+</span></button>`;
 }
 document.addEventListener("click", e => {
   const mas = e.target.closest("[data-mas]"), menos = e.target.closest("[data-menos]");
@@ -237,23 +228,32 @@ $("#cats").addEventListener("click", e => {
 });
 
 function tarjeta(it){
-  const foto = it.img ? `<img class="itImg" src="${it.img}" alt="" loading="lazy" width="120" height="80">` : "";
+  const foto = it.img ? `<img class="itImg" src="${esc(it.img)}" alt="" loading="lazy" width="120" height="80">` : "";
+  const info = `<div class="itInfo"><b class="itNom">${esc(it.nombre)}</b>${it.desc ? `<span class="itDesc">${esc(it.desc)}</span>` : ""}<span class="itPrecio">${euros(it.precio)}</span></div>`;
   if (it.salsas){
     return `<li class="it it--salsas">
-      <div class="itInfo"><b class="itNom">${it.nombre}</b>${it.desc ? `<span class="itDesc">${it.desc}</span>` : ""}<span class="itPrecio">${euros(it.precio)}</span></div>
-      <div class="salsas">${SALSAS.map(s => `<div class="salsa"><span>${s}</span>${stepper(`${it.id}|${s}`)}</div>`).join("")}</div>
+      ${info}
+      <div class="salsas">${it.salsas.map(sa => `<div class="salsa"><span>${esc(sa)}</span>${stepper(clave(it.id, it.variante, sa))}</div>`).join("")}</div>
     </li>`;
   }
   return `<li class="it${it.img ? " it--foto" : ""}">
     ${foto}
-    <div class="itInfo"><b class="itNom">${it.nombre}</b>${it.desc ? `<span class="itDesc">${it.desc}</span>` : ""}<span class="itPrecio">${euros(it.precio)}</span></div>
-    ${stepper(it.id)}
+    ${info}
+    ${stepper(clave(it.id, it.variante))}
   </li>`;
 }
 function pintarCatalogo(){
   $("#recogida").innerHTML = textoRecogida();
+  if (!cartaLista){
+    $("#cats").innerHTML = "";
+    $("#catalogo").innerHTML = cartaError
+      ? `<p class="aviso">No pudimos cargar la carta. Recargá la página o llamanos al <a href="tel:+34615351131">${CONFIG.telefono}</a>.</p>`
+      : `<p class="aviso">Cargando la carta…</p>`;
+    return;
+  }
   pintarCats();
   const c = CATEGORIAS.find(x => x.id === estado.cat) || CATEGORIAS[0];
+  if (!c){ $("#catalogo").innerHTML = `<p class="aviso">Por ahora no hay productos para take away.</p>`; return; }
   $("#catalogo").innerHTML = c.grupos.map(g => `
     ${g.titulo ? `<div class="grupoT"><h3>${g.titulo}</h3>${g.sub ? `<span>${g.sub}</span>` : ""}</div>` : ""}
     <ul class="items">${g.items.map(tarjeta).join("")}</ul>`).join("");
@@ -283,7 +283,7 @@ function pintarResumen(){
   $("#lineas").innerHTML = ids.map(id => {
     const p = PRODUCTOS[id];
     return `<li class="linea">
-      <div class="lineaTxt"><b>${p.nombre}</b>${p.extra ? `<span>${p.extra}</span>` : ""}</div>
+      <div class="lineaTxt"><b>${esc(p.nombre)}</b>${p.extra ? `<span>${esc(p.extra)}</span>` : ""}</div>
       ${stepper(id)}
       <span class="lineaPrecio">${euros(p.precio * cant(id))}</span>
     </li>`;
@@ -361,7 +361,10 @@ form.addEventListener("submit", async e => {
     dia: estado.dia, hora: estado.hora,
     nombre: form.elements.nombre.value.trim(), telefono: telefonoCompleto(),
     comentario: form.elements.comentario.value.trim(), web: form.elements.web.value,
-    items: Object.entries(estado.items).filter(([id]) => PRODUCTOS[id]).map(([id, cant]) => ({ id, cant })),
+    items: Object.entries(estado.items).filter(([k]) => PRODUCTOS[k]).map(([k, cant]) => {
+      const [id, variante, salsa] = k.split("|");
+      return { id, variante: variante || null, salsa: salsa || null, cant };
+    }),
   };
   btn.disabled = true; btn.textContent = "Enviando…";
   try {
@@ -395,4 +398,5 @@ $("#otro").addEventListener("click", () => irA(2));
   const valido = estado.dia && estado.hora && estado.dia >= hoy && Object.values(horasDe(estado.dia)).flat().includes(estado.hora);
   if (!valido){ estado.hora = null; }
   irA(valido && Object.keys(estado.items).length ? 3 : 1);
+  cargarCarta();
 })();
