@@ -2447,3 +2447,204 @@ html{ overflow-x: clip; }
 @media (prefers-reduced-motion: reduce){
   .prod-card .prod-char-left .prod-photo{ transition: none; scale: 1; }
 }
+
+/* ---------- Carta: marco a cuadros como la carta impresa ---------- */
+.menu-frame{
+  --sq: 12px;                                     /* lado de cada cuadro */
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: calc(100svh - 120px);
+  display: flex;
+  padding: var(--sq);
+  border-radius: calc(var(--radius) + 4px);
+  background:
+    conic-gradient(#f2f2f2 25%, #0b0b0b 0 50%, #f2f2f2 0 75%, #0b0b0b 0) 0 0 / calc(var(--sq) * 2) calc(var(--sq) * 2);
+  box-shadow: 0 18px 50px rgba(0,0,0,.45);
+}
+.menu-frame .menu-grid{
+  flex: 1;
+  background: var(--bg);
+  border: 0;
+  border-radius: 6px;
+  outline: 1px solid rgba(245,245,245,.22);      /* filete fino por dentro, a 6 px del borde */
+  outline-offset: -6px;
+  max-height: none;
+}
+.menu-frame .menu-col{ border-right-color: rgba(245,245,245,.14); }
+.menu-frame .menu-item{ padding: 6px 0; }
+.menu-frame .menu-salsas{ margin-top: 6px; }
+.menu-frame .menu-col-title{
+  font-family: "Roboto Slab", Georgia, serif;     /* misma letra que la carta impresa */
+  font-weight: 900;
+  font-size: clamp(1.05rem, 1.35vw, 1.4rem);
+  letter-spacing: .01em;
+  text-align: center;
+  padding-bottom: 4px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid rgba(245,245,245,.14);
+}
+.menu-frame .menu-col-sub{ text-align: center; }
+
+/* Sello "100% Smash" junto al título de Burgers */
+.menu-col-title{ position: relative; }
+.menu-stamp{
+  position: absolute;
+  top: -18px;
+  left: -6px;
+  width: 62px;
+  height: auto;
+  transform: rotate(-8deg);
+  filter: drop-shadow(3px 4px 0 rgba(0,0,0,.6));
+  pointer-events: none;
+}
+
+@media (max-width: 920px){
+  .menu-frame{ flex: none; max-height: none; }
+  .menu-frame .menu-grid{ max-height: none; overflow: visible; }
+  .menu-frame .menu-col{ border-bottom-color: rgba(245,245,245,.14); }
+}
+@media (max-width: 620px){
+  .menu-frame{ --sq: 9px; }
+}
+
+/* Alérgenos: íconos de línea fina debajo de cada plato */
+.menu-al{ display: flex; gap: 5px; margin-top: 3px; color: rgba(245,245,245,.55); }
+.al-ic{ width: 15px; height: 15px; flex-shrink: 0; opacity: .62; }
+/* Recuadro "Contiene" con la leyenda de los íconos */
+.menu-contiene{
+  margin-top: 6px;
+  border: 1px solid rgba(245,245,245,.35);
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.menu-contiene-t{
+  background: #f2f2f2;
+  color: #0b0b0b;
+  font-family: "Roboto Slab", Georgia, serif;
+  font-weight: 900;
+  font-size: 11px;
+  text-align: center;
+  padding: 3px 0;
+}
+.menu-contiene ul{
+  list-style: none;
+  margin: 0;
+  padding: 8px 6px 7px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.menu-contiene li{
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  font-size: 8.5px; font-weight: 600; color: rgba(245,245,245,.7); text-align: center;
+}
+.menu-contiene .al-ic{ width: 24px; height: 24px; opacity: 1; }
+
+/* Personajes chiquitos al lado de cada burger (en negativo: líneas blancas) */
+.menu-item--pj{ align-items: center; }
+.menu-pj{
+  width: 46px; height: 46px; object-fit: contain; flex-shrink: 0;
+  filter: invert(1) brightness(.92);
+  margin-right: 2px;
+}
+
+/* Etiquetas como en la carta impresa, en blanco sobre el fondo oscuro */
+.menu-frame .menu-col-sub{
+  display: table;
+  margin: 2px auto 10px;
+  padding: 4px 10px;
+  background: #f2f2f2;
+  color: #0b0b0b;
+  font-weight: 700;
+  border-radius: 3px;
+  letter-spacing: .04em;
+}
+.menu-frame .menu-salsas{
+  background: #f2f2f2;
+  color: #0b0b0b;
+  border-color: #f2f2f2;
+  border-radius: 4px;
+  font-weight: 600;
+  text-align: center;
+}
+.menu-frame .menu-salsas-label{ color: #0b0b0b; }
+
+/* Logo "Smash Burgers" montado sobre el borde de abajo del marco */
+.menu-frame{ position: relative; margin-bottom: 78px; }
+.menu-logo{
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: clamp(150px, 15vw, 210px);
+  height: auto;
+  transform: translate(-50%, 84%) rotate(-4deg);
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,.55));
+  pointer-events: none;
+  z-index: 2;
+}
+@media (max-width: 620px){
+  .menu-pj{ width: 40px; height: 40px; }
+  .menu-logo{ width: 150px; }
+}
+
+/* La carta enmarcada ocupa lo que necesita: nunca columnas con scroll interno.
+   En pantallas bajas la sección se alarga y se baja con la página. */
+#carta .wrap,
+#carta .tabPanels,
+#tabCarta.panel.isActive{ flex: none; min-height: unset; overflow: visible; }
+.menu-frame{ max-height: none; }
+.menu-frame .menu-grid{ overflow: visible; }
+.menu-frame .menu-col{ overflow: visible; }
+#carta.section{ height: auto; min-height: 100svh; overflow: visible; justify-content: flex-start; }
+
+/* ---------- Carta en claro (prueba): negro sobre blanco, como la impresa ----------
+   Para volver al oscuro: sacar la clase menu-frame--claro en index.html. */
+.menu-frame--claro{
+  --fg: #0b0b0b;
+  --muted: #3c3c3c;
+  --muted2: #666;
+  --line: rgba(0,0,0,.18);
+  --line2: rgba(0,0,0,.14);
+  color: #0b0b0b;
+}
+.menu-frame--claro .menu-grid{
+  background: #fff;
+  outline-color: rgba(0,0,0,.35);
+}
+.menu-frame--claro .menu-col{ border-right-color: #0b0b0b; }
+.menu-frame--claro .menu-col-title{ border-bottom-color: rgba(0,0,0,.2); }
+.menu-frame--claro .menu-item{ border-bottom-color: rgba(0,0,0,.08); }
+.menu-frame--claro .menu-item-prices span,
+.menu-frame--claro .menu-item-price-single{ color: #0b0b0b; }
+.menu-frame--claro .menu-col-note{ color: #0b0b0b; font-weight: 600; border-top-color: rgba(0,0,0,.12); }
+/* etiquetas negras con letra blanca, igual que en la carta */
+.menu-frame--claro .menu-col-sub,
+.menu-frame--claro .menu-salsas{ background: #0b0b0b; color: #fff; border-color: #0b0b0b; }
+.menu-frame--claro .menu-salsas-label{ color: #fff; }
+/* íconos y personajes vuelven a sus líneas negras originales */
+.menu-frame--claro .al-ic{ filter: invert(1); opacity: .75; }
+.menu-frame--claro .menu-pj{ filter: none; }
+.menu-frame--claro .menu-contiene{ border-color: #0b0b0b; }
+.menu-frame--claro .menu-contiene-t{ background: #0b0b0b; color: #fff; }
+.menu-frame--claro .menu-contiene li{ color: #0b0b0b; }
+.menu-frame--claro .menu-contiene .al-ic{ opacity: 1; }
+.menu-frame--claro .menu-stamp{ filter: drop-shadow(3px 4px 0 #0b0b0b); }
+@media (max-width: 920px){
+  .menu-frame--claro .menu-col{ border-bottom-color: rgba(0,0,0,.18); }
+}
+@media (max-width: 620px){
+  .menu-stamp{ width: 50px; top: -16px; left: -8px; }
+  .menu-frame .menu-col-sub{ margin-top: 10px; }
+}
+
+/* Borde a cuadros de 2 cuadros de ancho + logo "Smash Burgers" arriba */
+.menu-frame{ padding: calc(var(--sq) * 2); margin-top: 70px; margin-bottom: 8px; }
+.menu-logo{
+  top: 0;
+  bottom: auto;
+  transform: translate(-50%, -76%) rotate(-4deg);
+}
+@media (max-width: 620px){
+  .menu-frame{ margin-top: 56px; }
+}

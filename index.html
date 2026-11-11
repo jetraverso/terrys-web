@@ -49,11 +49,12 @@
   <!-- Google Fonts: Montserrat (body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&family=Roboto+Slab:wght@900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css?v=14" />
+  <link rel="stylesheet" href="styles.css?v=30" />
 </head>
 <body>
+
   <div id="grain" aria-hidden="true"></div>
 
   <!-- TOPBAR -->
@@ -276,62 +277,75 @@
 
         <div class="tabPanels">
           <div id="tabCarta" class="panel isActive">
+            <div class="menu-frame menu-frame--claro">
             <div class="menu-grid">
 
               <!-- BURGERS -->
               <div class="menu-col menu-col--burgers">
                 <div class="menu-col-header">
-                  <h3 class="menu-col-title">Burgers</h3>
-                  <div class="menu-col-sub">Medallón 100g · pan brioche</div>
+                  <h3 class="menu-col-title">Burgers <img class="menu-stamp" src="assets/img/carta/sello-smash.webp" alt="100% Smash" width="300" height="270"></h3>
+                  <div class="menu-col-sub">Medallón de carne x100 gr en pan brioche</div>
                   <div class="menu-price-headers">
                     <span>Simple</span><span>Doble</span>
                   </div>
                 </div>
                 <ul class="menu-list">
-                  <li class="menu-item">
+                  <li class="menu-item menu-item--pj">
+                    <img class="menu-pj" src="assets/img/personajes/terry.webp" alt="" loading="lazy">
                     <div class="menu-item-left">
                       <span class="menu-item-name">Terry</span>
                       <span class="menu-item-desc">Con doble cheddar</span>
+                      <span class="menu-al" role="img" aria-label="Contiene: gluten, sulfitos, lácteos, huevo" title="Contiene: gluten, sulfitos, lácteos, huevo"><img class="al-ic" src="assets/img/carta/al-gluten.png?v=2" alt="" title="Gluten" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-sulfitos.png?v=2" alt="" title="Sulfitos" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-lacteos.png?v=2" alt="" title="Lácteos" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-huevo.png?v=2" alt="" title="Huevo" width="14" height="14" loading="lazy"></span>
                     </div>
-                    <div class="menu-item-prices"><span>6,90</span><span>8,90</span></div>
+                    <div class="menu-item-prices"><span>7,90</span><span>9,90</span></div>
                   </li>
-                  <li class="menu-item">
+                  <li class="menu-item menu-item--pj">
+                    <img class="menu-pj" src="assets/img/personajes/torch.webp" alt="" loading="lazy">
                     <div class="menu-item-left">
                       <span class="menu-item-name">Torch</span>
                       <span class="menu-item-desc">Con doble cheddar y bacon</span>
+                      <span class="menu-al" role="img" aria-label="Contiene: gluten, sulfitos, lácteos, huevo" title="Contiene: gluten, sulfitos, lácteos, huevo"><img class="al-ic" src="assets/img/carta/al-gluten.png?v=2" alt="" title="Gluten" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-sulfitos.png?v=2" alt="" title="Sulfitos" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-lacteos.png?v=2" alt="" title="Lácteos" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-huevo.png?v=2" alt="" title="Huevo" width="14" height="14" loading="lazy"></span>
                     </div>
-                    <div class="menu-item-prices"><span>9,00</span><span>11,00</span></div>
+                    <div class="menu-item-prices"><span>9,50</span><span>11,50</span></div>
                   </li>
-                  <li class="menu-item">
+                  <li class="menu-item menu-item--pj">
+                    <img class="menu-pj" src="assets/img/personajes/russel.webp" alt="" loading="lazy">
                     <div class="menu-item-left">
                       <span class="menu-item-name">Russel</span>
                       <span class="menu-item-desc">Con cheddar, lechuga, tomate y salsa mil islas</span>
-                    </div>
-                    <div class="menu-item-prices"><span>8,50</span><span>10,50</span></div>
-                  </li>
-                  <li class="menu-item">
-                    <div class="menu-item-left">
-                      <span class="menu-item-name">Zulma</span>
-                      <span class="menu-item-desc">Con cheddar, ketchup, mostaza y cebolla picada</span>
-                    </div>
-                    <div class="menu-item-prices"><span>8,50</span><span>10,50</span></div>
-                  </li>
-                  <li class="menu-item">
-                    <div class="menu-item-left">
-                      <span class="menu-item-name">Rumpi</span>
-                      <span class="menu-item-desc">Con cheddar y cebolla smasheada</span>
-                    </div>
-                    <div class="menu-item-prices"><span>8,50</span><span>10,50</span></div>
-                  </li>
-                  <li class="menu-item">
-                    <div class="menu-item-left">
-                      <span class="menu-item-name">Buba</span>
-                      <span class="menu-item-desc">Con muzzarellitas, cheddar y barbacoa</span>
+                      <span class="menu-al" role="img" aria-label="Contiene: gluten, sulfitos, lácteos, huevo, mostaza" title="Contiene: gluten, sulfitos, lácteos, huevo, mostaza"><img class="al-ic" src="assets/img/carta/al-gluten.png?v=2" alt="" title="Gluten" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-sulfitos.png?v=2" alt="" title="Sulfitos" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-lacteos.png?v=2" alt="" title="Lácteos" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-huevo.png?v=2" alt="" title="Huevo" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-mostaza.png?v=2" alt="" title="Mostaza" width="14" height="14" loading="lazy"></span>
                     </div>
                     <div class="menu-item-prices"><span>9,00</span><span>11,00</span></div>
                   </li>
+                  <li class="menu-item menu-item--pj">
+                    <img class="menu-pj" src="assets/img/personajes/zulma.webp" alt="" loading="lazy">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Zulma</span>
+                      <span class="menu-item-desc">Con cheddar, ketchup, mostaza y cebolla picada</span>
+                      <span class="menu-al" role="img" aria-label="Contiene: gluten, sulfitos, lácteos, huevo, mostaza" title="Contiene: gluten, sulfitos, lácteos, huevo, mostaza"><img class="al-ic" src="assets/img/carta/al-gluten.png?v=2" alt="" title="Gluten" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-sulfitos.png?v=2" alt="" title="Sulfitos" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-lacteos.png?v=2" alt="" title="Lácteos" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-huevo.png?v=2" alt="" title="Huevo" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-mostaza.png?v=2" alt="" title="Mostaza" width="14" height="14" loading="lazy"></span>
+                    </div>
+                    <div class="menu-item-prices"><span>9,00</span><span>11,00</span></div>
+                  </li>
+                  <li class="menu-item menu-item--pj">
+                    <img class="menu-pj" src="assets/img/personajes/rumpy.webp" alt="" loading="lazy">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Rumpi</span>
+                      <span class="menu-item-desc">Con cheddar y cebolla smasheada</span>
+                      <span class="menu-al" role="img" aria-label="Contiene: gluten, sulfitos, lácteos, huevo" title="Contiene: gluten, sulfitos, lácteos, huevo"><img class="al-ic" src="assets/img/carta/al-gluten.png?v=2" alt="" title="Gluten" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-sulfitos.png?v=2" alt="" title="Sulfitos" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-lacteos.png?v=2" alt="" title="Lácteos" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-huevo.png?v=2" alt="" title="Huevo" width="14" height="14" loading="lazy"></span>
+                    </div>
+                    <div class="menu-item-prices"><span>9,00</span><span>11,00</span></div>
+                  </li>
+                  <li class="menu-item menu-item--pj">
+                    <img class="menu-pj" src="assets/img/personajes/buba.webp" alt="" loading="lazy">
+                    <div class="menu-item-left">
+                      <span class="menu-item-name">Buba</span>
+                      <span class="menu-item-desc">Con muzzarellitas, cheddar y barbacoa</span>
+                      <span class="menu-al" role="img" aria-label="Contiene: gluten, sulfitos, lácteos, huevo" title="Contiene: gluten, sulfitos, lácteos, huevo"><img class="al-ic" src="assets/img/carta/al-gluten.png?v=2" alt="" title="Gluten" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-sulfitos.png?v=2" alt="" title="Sulfitos" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-lacteos.png?v=2" alt="" title="Lácteos" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-huevo.png?v=2" alt="" title="Huevo" width="14" height="14" loading="lazy"></span>
+                    </div>
+                    <div class="menu-item-prices"><span>9,50</span><span>11,50</span></div>
+                  </li>
                 </ul>
-                <div class="menu-col-note">* Hazla vegetariana por 1€ más por medallón</div>
+                <div class="menu-col-note">* Hazla vegetariana o de pollo por 1€ más por medallón<br>* Hazla sin gluten por 1€</div>
               </div>
 
               <!-- SIDES -->
@@ -344,33 +358,35 @@
                     <div class="menu-item-left">
                       <span class="menu-item-name">Patatas fritas</span>
                     </div>
-                    <div class="menu-item-price-single">3,90</div>
+                    <div class="menu-item-price-single">4,00</div>
                   </li>
                   <li class="menu-item">
                     <div class="menu-item-left">
                       <span class="menu-item-name">Patatas Russel</span>
                       <span class="menu-item-desc">Con salsa mil islas y bacon crocante</span>
+                      <span class="menu-al" role="img" aria-label="Contiene: sulfitos, mostaza" title="Contiene: sulfitos, mostaza"><img class="al-ic" src="assets/img/carta/al-sulfitos.png?v=2" alt="" title="Sulfitos" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-mostaza.png?v=2" alt="" title="Mostaza" width="14" height="14" loading="lazy"></span>
                     </div>
-                    <div class="menu-item-price-single">5,90</div>
+                    <div class="menu-item-price-single">6,00</div>
                   </li>
                   <li class="menu-item">
                     <div class="menu-item-left">
                       <span class="menu-item-name">Patatas Torch</span>
                       <span class="menu-item-desc">Con cheddar y bacon crocante</span>
+                      <span class="menu-al" role="img" aria-label="Contiene: sulfitos, lácteos" title="Contiene: sulfitos, lácteos"><img class="al-ic" src="assets/img/carta/al-sulfitos.png?v=2" alt="" title="Sulfitos" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-lacteos.png?v=2" alt="" title="Lácteos" width="14" height="14" loading="lazy"></span>
                     </div>
-                    <div class="menu-item-price-single">5,90</div>
+                    <div class="menu-item-price-single">6,00</div>
                   </li>
                   <li class="menu-item">
                     <div class="menu-item-left">
                       <span class="menu-item-name">Boniatos</span>
-                      <span class="menu-item-desc">Con salsa a elección</span>
                     </div>
-                    <div class="menu-item-price-single">5,90</div>
+                    <div class="menu-item-price-single">6,00</div>
                   </li>
                   <li class="menu-item">
                     <div class="menu-item-left">
                       <span class="menu-item-name">Muzzarellitas <em>8 unds.</em></span>
                       <span class="menu-item-desc">Con salsa a elección</span>
+                      <span class="menu-al" role="img" aria-label="Contiene: gluten, lácteos, huevo" title="Contiene: gluten, lácteos, huevo"><img class="al-ic" src="assets/img/carta/al-gluten.png?v=2" alt="" title="Gluten" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-lacteos.png?v=2" alt="" title="Lácteos" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-huevo.png?v=2" alt="" title="Huevo" width="14" height="14" loading="lazy"></span>
                     </div>
                     <div class="menu-item-price-single">8,50</div>
                   </li>
@@ -378,6 +394,7 @@
                     <div class="menu-item-left">
                       <span class="menu-item-name">Nuggets <em>8 unds.</em></span>
                       <span class="menu-item-desc">Con salsa a elección</span>
+                      <span class="menu-al" role="img" aria-label="Contiene: gluten, huevo" title="Contiene: gluten, huevo"><img class="al-ic" src="assets/img/carta/al-gluten.png?v=2" alt="" title="Gluten" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-huevo.png?v=2" alt="" title="Huevo" width="14" height="14" loading="lazy"></span>
                     </div>
                     <div class="menu-item-price-single">8,50</div>
                   </li>
@@ -385,13 +402,18 @@
                     <div class="menu-item-left">
                       <span class="menu-item-name">Aros de cebolla <em>8 unds.</em></span>
                       <span class="menu-item-desc">Con salsa a elección</span>
+                      <span class="menu-al" role="img" aria-label="Contiene: gluten, huevo" title="Contiene: gluten, huevo"><img class="al-ic" src="assets/img/carta/al-gluten.png?v=2" alt="" title="Gluten" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-huevo.png?v=2" alt="" title="Huevo" width="14" height="14" loading="lazy"></span>
                     </div>
                     <div class="menu-item-price-single">8,50</div>
                   </li>
                 </ul>
                 <div class="menu-salsas">
-                  <span class="menu-salsas-label">Salsas</span>
+                  <span class="menu-salsas-label">Opciones de salsas</span>
                   barbacoa · cheddar · alioli
+                </div>
+                <div class="menu-contiene" aria-label="Alérgenos">
+                  <div class="menu-contiene-t">Contiene</div>
+                  <ul><li><img class="al-ic" src="assets/img/carta/al-cacahuete.png?v=2" alt="" title="Cacahuete" width="14" height="14" loading="lazy"><span>Cacahuete</span></li><li><img class="al-ic" src="assets/img/carta/al-sulfitos.png?v=2" alt="" title="Sulfitos" width="14" height="14" loading="lazy"><span>Sulfitos</span></li><li><img class="al-ic" src="assets/img/carta/al-gluten.png?v=2" alt="" title="Gluten" width="14" height="14" loading="lazy"><span>Gluten</span></li><li><img class="al-ic" src="assets/img/carta/al-mostaza.png?v=2" alt="" title="Mostaza" width="14" height="14" loading="lazy"><span>Mostaza</span></li><li><img class="al-ic" src="assets/img/carta/al-soja.png?v=2" alt="" title="Soja" width="14" height="14" loading="lazy"><span>Soja</span></li><li><img class="al-ic" src="assets/img/carta/al-lacteos.png?v=2" alt="" title="Lácteos" width="14" height="14" loading="lazy"><span>Lácteos</span></li><li><img class="al-ic" src="assets/img/carta/al-huevo.png?v=2" alt="" title="Huevo" width="14" height="14" loading="lazy"><span>Huevo</span></li></ul>
                 </div>
               </div>
 
@@ -404,7 +426,7 @@
                 <ul class="menu-list">
                   <li class="menu-item"><div class="menu-item-left"><span class="menu-item-name">Agua mineral</span></div><div class="menu-item-price-single">2,20</div></li>
                   <li class="menu-item"><div class="menu-item-left"><span class="menu-item-name">Aquarius</span></div><div class="menu-item-price-single">2,50</div></li>
-                  <li class="menu-item"><div class="menu-item-left"><span class="menu-item-name">Coca-Cola</span></div><div class="menu-item-price-single">2,50</div></li>
+                  <li class="menu-item"><div class="menu-item-left"><span class="menu-item-name">Bebidas Coca-Cola</span></div><div class="menu-item-price-single">2,50</div></li>
                   <li class="menu-item"><div class="menu-item-left"><span class="menu-item-name">Estrella Damm</span></div><div class="menu-item-price-single">2,90</div></li>
                   <li class="menu-item"><div class="menu-item-left"><span class="menu-item-name">Estrella Damm 0,0</span></div><div class="menu-item-price-single">2,90</div></li>
                   <li class="menu-item"><div class="menu-item-left"><span class="menu-item-name">Turia</span></div><div class="menu-item-price-single">3,50</div></li>
@@ -425,6 +447,7 @@
                       <span class="menu-item-desc">Frambuesas frescas bañadas en doble chocolate</span>
                       <span class="menu-item-desc">Chocolate blanco + chocolate con leche</span>
                       <span class="menu-item-desc">Chocolate blanco + chocolate amargo</span>
+                      <span class="menu-al" role="img" aria-label="Contiene: lácteos, cacahuete, soja" title="Contiene: lácteos, cacahuete, soja"><img class="al-ic" src="assets/img/carta/al-lacteos.png?v=2" alt="" title="Lácteos" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-cacahuete.png?v=2" alt="" title="Cacahuete" width="14" height="14" loading="lazy"><img class="al-ic" src="assets/img/carta/al-soja.png?v=2" alt="" title="Soja" width="14" height="14" loading="lazy"></span>
                     </div>
                     <div class="menu-item-price-single">5,50</div>
                   </li>
@@ -433,6 +456,8 @@
               </div>
 
             </div><!-- /.menu-grid -->
+            <img class="menu-logo" src="assets/img/carta/smash-burgers.webp" alt="Smash Burgers" width="758" height="369">
+            </div><!-- /.menu-frame -->
           </div>
 
         </div>
