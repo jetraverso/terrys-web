@@ -2698,3 +2698,16 @@ html{ overflow-x: clip; }
   .fabBtn{ flex: 1; min-width: 0; padding: 13px 10px; }
 }
 @media (prefers-reduced-motion: reduce){ .fab{ transition: opacity .2s ease; } }
+
+/* Contacto: horarios agrupados (lunes a domingo + mediodía / noche) */
+.hoursRow--dias{ color: var(--fg); font-weight: 600; font-size: 14px; }
+.hoursRow--dias + .hoursRow, .hoursRow--dias ~ .hoursRow{ padding-left: 24px; }
+.hoursRow--dias ~ .hoursRow span:last-child{ color: var(--fg); font-variant-numeric: tabular-nums; }
+
+/* Contacto: horarios agrupados (lunes a domingo + mediodía / noche) */
+.hoursRow--dias{ color: var(--fg); font-weight: 600; font-size: 14px; }
+.hoursRow--dias ~ .hoursRow{ padding-left: 24px; }
+.hoursRow--dias ~ .hoursRow span:last-child{ color: var(--fg); font-variant-numeric: tabular-nums; }
+.contactLink{ display: inline-flex; align-items: center; gap: 8px; width: fit-content; }
+.contactLinkIc{ width: 16px; height: 16px; flex: none; }
+.contactLinks:has(.contactLink){ gap: 10px; }
