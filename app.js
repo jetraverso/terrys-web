@@ -668,7 +668,7 @@ const CONFIG = {
   maxPersonas: 30,   // si cambia, cambiarlo también en web_reservar() y en la tabla reservas
   diasAdelante: 90,
   // Página para pedir take away (cuando esté armada). Vacío = el botón "Hacer pedido" baja a Delivery & Take away.
-  pedidoUrl: "",
+  pedidoUrl: "pedido/",
 };
 
 async function rpc(fn, body){
