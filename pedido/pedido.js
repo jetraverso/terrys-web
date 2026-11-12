@@ -41,7 +41,7 @@ function armarCarta(filas){
   CATEGORIAS = []; VARIANTES = {};
   const variantes = r => (r.variantes || []).filter(x => x.precio != null).map(x => {
     const v = x.v || "";
-    const titulo = r.categoria === "burgers" ? (v === "doble" ? `${r.nombre} Doble Carne` : r.nombre) : v ? `${r.nombre} ${v}` : r.nombre;
+    const titulo = r.categoria === "burgers" ? (v === "doble" ? `${r.nombre} Doble` : r.nombre) : v ? `${r.nombre} ${v}` : r.nombre;
     const it = { id: r.id, v, nombre: r.nombre, titulo,
                  desc: r.descripcion || "", precio: +x.precio, img: r.foto_url || "", cat: r.categoria,
                  roles: (x.roles || []).filter(g => g.opciones && g.opciones.length) };
@@ -63,10 +63,25 @@ function armarCarta(filas){
   }
 }
 
+// Menús: solo de lunes a viernes al mediodía (retiro entre las 12:00 y las 16:00).
+function menuDisponible(){
+  if (!estado.dia || !estado.hora) return false;
+  const dow = new Date(estado.dia + "T12:00:00Z").getUTCDay();
+  return dow >= 1 && dow <= 5 && estado.hora >= "12:00" && estado.hora <= "16:00";
+}
+const catVisible = c => c.id !== "menus" || menuDisponible();
+let menusSacados = false;
+function sacarNoDisponibles(){
+  let sacados = false;
+  for (const k of Object.keys(estado.items)) if (!linea(k)) { if (k.startsWith("menu")) sacados = true; delete estado.items[k]; }
+  if (sacados) { menusSacados = true; guardar(); }
+}
+
 // Una línea del carrito armada (nombre, detalle y precio con extras); null si ya no es válida.
 function linea(k){
   const [id, v, s] = k.split("|");
   const it = VARIANTES[`${id}|${v}`]; if (!it) return null;
+  if (it.cat === "menus" && !menuDisponible()) return null;
   const ops = s ? s.split(",").map(Number) : [];
   const todas = it.roles.flatMap(g => g.opciones);
   if (ops.some(o => !todas.some(x => x.id === o))) return null;
@@ -153,6 +168,7 @@ function irA(n){
     li.classList.toggle("isDone", k < n);
   });
   if (n === 2) pintarHoras();
+  if ((n === 3 || n === 4) && cartaLista) sacarNoDisponibles();
   if (n === 3) pintarCatalogo();
   if (n === 4) pintarResumen();
   if (n === 4) $("#enviar").disabled = !totales().n;
@@ -192,7 +208,7 @@ $("#dias").addEventListener("click", e => {
 });
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-hora]"); if (!b) return;
-  estado.hora = b.dataset.hora; pintarHoras();
+  estado.hora = b.dataset.hora; menusSacados = false; pintarHoras();
 });
 
 function textoRecogida(){
@@ -234,7 +250,7 @@ function cantidadCat(cat){
   return Object.entries(estado.items).reduce((s, [k, n]) => s + (linea(k)?.cat === cat ? n : 0), 0);
 }
 function pintarCats(){
-  $("#cats").innerHTML = CATEGORIAS.map(c => {
+  $("#cats").innerHTML = CATEGORIAS.filter(catVisible).map(c => {
     const n = cantidadCat(c.id);
     return `<button type="button" class="cat${c.id === estado.cat ? " isOn" : ""}" data-cat="${c.id}">${c.nombre}${n ? `<span class="catN">${n}</span>` : ""}</button>`;
   }).join("");
@@ -259,29 +275,30 @@ function marcarCat(id){
 function seguirScroll(){
   if (!siguiendo || pasoActual !== 3 || !cartaLista) return;
   const limite = alturaFija() + 24;
-  let actual = CATEGORIAS[0]?.id;
-  for (const c of CATEGORIAS){ const sec = document.getElementById(`sec-${c.id}`); if (sec && sec.getBoundingClientRect().top <= limite) actual = c.id; }
+  let actual = CATEGORIAS.find(catVisible)?.id;
+  for (const c of CATEGORIAS.filter(catVisible)){ const sec = document.getElementById(`sec-${c.id}`); if (sec && sec.getBoundingClientRect().top <= limite) actual = c.id; }
   // al llegar al final de la página, la última categoría
-  if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) actual = CATEGORIAS[CATEGORIAS.length - 1]?.id;
+  if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) actual = CATEGORIAS.filter(catVisible).pop()?.id;
   if (actual) marcarCat(actual);
 }
 window.addEventListener("scroll", () => requestAnimationFrame(seguirScroll), { passive: true });
 
+const SIN_FOTO = `<span class="itImg itImg--vacia" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M9.5 5H15l1.5 2H19a2 2 0 0 1 2 2v8.5M17.6 19H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.5"/><path d="M9.9 10.2a3 3 0 0 0 4 4"/></svg></span>`;
 const enPedido = idv => Object.entries(estado.items).reduce((t, [k, n]) => t + (k.startsWith(idv + "|") ? n : 0), 0);
 function tarjeta(it){
-  const foto = it.img ? `<img class="itImg" src="${esc(it.img)}" alt="" loading="lazy" width="120" height="80">` : "";
+  const foto = it.img ? `<img class="itImg" src="${esc(it.img)}" alt="" loading="lazy" width="120" height="80">` : SIN_FOTO;
   const info = `<div class="itInfo"><b class="itNom">${esc(it.titulo)}</b>${it.desc ? `<span class="itDesc">${esc(it.desc)}</span>` : ""}<span class="itPrecio">${euros(it.precio)}</span></div>`;
   const idv = `${it.id}|${it.v}`;
   if (it.roles.length){
     const n = enPedido(idv);
     const pista = it.roles.map(g => g.nombre.toLowerCase()).slice(0, 3).join(", ");
-    return `<li class="it${it.img ? " it--foto" : ""} it--opc">
+    return `<li class="it it--foto it--opc">
       ${foto}
       ${info}
       <div class="elegir">${n ? `<span class="enPedido">${n} en tu pedido</span>` : ""}<button type="button" class="qAdd" data-elegir="${esc(idv)}" title="Elegí: ${esc(pista)}">${n ? "Agregar otro" : "Elegir"} <span aria-hidden="true">+</span></button></div>
     </li>`;
   }
-  return `<li class="it${it.img ? " it--foto" : ""}">
+  return `<li class="it it--foto">
     ${foto}
     ${info}
     ${stepper(clave(it.id, it.v))}
@@ -297,9 +314,11 @@ function pintarCatalogo(){
     return;
   }
   pintarCats();
-  if (!CATEGORIAS.length){ $("#catalogo").innerHTML = `<p class="aviso">Por ahora no hay productos para take away.</p>`; return; }
+  if (!catVisible({ id: estado.cat })) estado.cat = "burgers";
+  const visibles = CATEGORIAS.filter(catVisible);
+  if (!visibles.length){ $("#catalogo").innerHTML = `<p class="aviso">Por ahora no hay productos para take away.</p>`; return; }
   // todas las categorías una debajo de la otra
-  $("#catalogo").innerHTML = CATEGORIAS.map(c => `<section class="secCat" id="sec-${c.id}">
+  $("#catalogo").innerHTML = (menusSacados ? `<p class="aviso">Los menús son solo de lunes a viernes al mediodía: los sacamos del pedido.</p>` : "") + visibles.map(c => `<section class="secCat" id="sec-${c.id}">
     <h2 class="secT">${c.nombre}</h2>
     ${c.grupos.map(g => `
       ${g.titulo ? `<div class="grupoT"><h3>${g.titulo}</h3>${g.sub ? `<span>${g.sub}</span>` : ""}</div>` : ""}
@@ -496,6 +515,7 @@ form.addEventListener("submit", async e => {
       m.includes("demasiados") ? `Ya recibimos varios pedidos desde ese teléfono. Llamanos al ${CONFIG.telefono}.` :
       m.includes("teléfono") ? "Revisá el teléfono." :
       m.includes("horario") || m.includes("día") ? "Esa hora ya no está disponible. Elegí otra." :
+      m.includes("menú") ? "Los menús son solo de lunes a viernes al mediodía. Sacalo del pedido o cambiá la hora." :
       m.includes("producto") ? "Hay un producto que no reconocemos. Recargá la página y probá de nuevo." :
       `No pudimos enviarlo. Probá de nuevo o llamanos al ${CONFIG.telefono}.`;
     if (m.includes("horario") || m.includes("día")) setTimeout(() => irA(2), 1800);
