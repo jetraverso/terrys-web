@@ -41,7 +41,8 @@ function armarCarta(filas){
   CATEGORIAS = []; VARIANTES = {};
   const variantes = r => (r.variantes || []).filter(x => x.precio != null).map(x => {
     const v = x.v || "";
-    const it = { id: r.id, v, nombre: r.nombre, titulo: r.categoria !== "burgers" && v ? `${r.nombre} ${v}` : r.nombre,
+    const titulo = r.categoria === "burgers" ? (v === "doble" ? `${r.nombre} Doble Carne` : r.nombre) : v ? `${r.nombre} ${v}` : r.nombre;
+    const it = { id: r.id, v, nombre: r.nombre, titulo,
                  desc: r.descripcion || "", precio: +x.precio, img: r.foto_url || "", cat: r.categoria,
                  roles: (x.roles || []).filter(g => g.opciones && g.opciones.length) };
     VARIANTES[`${r.id}|${v}`] = it;
@@ -51,9 +52,10 @@ function armarCarta(filas){
     const items = filas.filter(r => r.categoria === cat).flatMap(variantes);
     if (!items.length) continue;
     if (cat === "burgers"){
-      const dobles = items.filter(x => x.v === "doble");
-      const grupos = [{ titulo: "Simples", sub: "Un medallón de carne de 100 g en pan brioche", items: items.filter(x => x.v !== "doble") }];
+      const dobles = items.filter(x => x.v === "doble"), simples = items.filter(x => x.v !== "doble");
+      const grupos = [];
       if (dobles.length) grupos.push({ titulo: "Dobles", sub: "Dos medallones de carne de 100 g en pan brioche", items: dobles });
+      if (simples.length) grupos.push({ titulo: "Simples", sub: "Un medallón de carne de 100 g en pan brioche", items: simples });
       CATEGORIAS.push({ id: cat, nombre: NOMBRES_CAT[cat], grupos });
     } else {
       CATEGORIAS.push({ id: cat, nombre: NOMBRES_CAT[cat], grupos: [{ items }] });
@@ -73,7 +75,7 @@ function linea(k){
     if (n < g.min || n > g.max) return null;
   }
   const elegidas = todas.filter((x, i) => ops.includes(x.id) && todas.findIndex(y => y.id === x.id) === i);
-  const extra = [it.cat === "burgers" && it.v ? cap(it.v) : "", elegidas.map(x => x.nombre).join(", ")].filter(Boolean).join(" · ");
+  const extra = elegidas.map(x => x.nombre).join(", ");
   return { ...it, ops, extra, precio: it.precio + elegidas.reduce((t, x) => t + (+x.precio || 0), 0) };
 }
 
@@ -239,9 +241,31 @@ function pintarCats(){
 }
 $("#cats").addEventListener("click", e => {
   const b = e.target.closest("[data-cat]"); if (!b) return;
-  estado.cat = b.dataset.cat; guardar(); pintarCatalogo();
-  $("#cats").scrollIntoView({ behavior: "smooth", block: "start" });
+  const sec = document.getElementById(`sec-${b.dataset.cat}`); if (!sec) return;
+  marcarCat(b.dataset.cat);
+  siguiendo = false; clearTimeout(trabaSpy); trabaSpy = setTimeout(() => (siguiendo = true), 900);   // no pelear con el scroll suave
+  window.scrollTo({ top: sec.getBoundingClientRect().top + window.scrollY - alturaFija() - 8, behavior: "smooth" });
 });
+// La lista es una sola: al bajar, la categoría de arriba se marca sola.
+let siguiendo = true, trabaSpy = 0;
+const alturaFija = () => ($(".top")?.offsetHeight || 0) + ($("#cats")?.offsetHeight || 0);
+function marcarCat(id){
+  if (estado.cat === id && $("#cats .cat.isOn")?.dataset.cat === id) return;
+  estado.cat = id; guardar();
+  $$("#cats .cat").forEach(b => b.classList.toggle("isOn", b.dataset.cat === id));
+  const b = $(`#cats [data-cat="${id}"]`);
+  if (b) $("#cats").scrollTo({ left: b.offsetLeft - $("#cats").offsetWidth / 2 + b.offsetWidth / 2, behavior: "smooth" });
+}
+function seguirScroll(){
+  if (!siguiendo || pasoActual !== 3 || !cartaLista) return;
+  const limite = alturaFija() + 24;
+  let actual = CATEGORIAS[0]?.id;
+  for (const c of CATEGORIAS){ const sec = document.getElementById(`sec-${c.id}`); if (sec && sec.getBoundingClientRect().top <= limite) actual = c.id; }
+  // al llegar al final de la página, la última categoría
+  if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) actual = CATEGORIAS[CATEGORIAS.length - 1]?.id;
+  if (actual) marcarCat(actual);
+}
+window.addEventListener("scroll", () => requestAnimationFrame(seguirScroll), { passive: true });
 
 const enPedido = idv => Object.entries(estado.items).reduce((t, [k, n]) => t + (k.startsWith(idv + "|") ? n : 0), 0);
 function tarjeta(it){
@@ -273,11 +297,14 @@ function pintarCatalogo(){
     return;
   }
   pintarCats();
-  const c = CATEGORIAS.find(x => x.id === estado.cat) || CATEGORIAS[0];
-  if (!c){ $("#catalogo").innerHTML = `<p class="aviso">Por ahora no hay productos para take away.</p>`; return; }
-  $("#catalogo").innerHTML = c.grupos.map(g => `
-    ${g.titulo ? `<div class="grupoT"><h3>${g.titulo}</h3>${g.sub ? `<span>${g.sub}</span>` : ""}</div>` : ""}
-    <ul class="items">${g.items.map(tarjeta).join("")}</ul>`).join("");
+  if (!CATEGORIAS.length){ $("#catalogo").innerHTML = `<p class="aviso">Por ahora no hay productos para take away.</p>`; return; }
+  // todas las categorías una debajo de la otra
+  $("#catalogo").innerHTML = CATEGORIAS.map(c => `<section class="secCat" id="sec-${c.id}">
+    <h2 class="secT">${c.nombre}</h2>
+    ${c.grupos.map(g => `
+      ${g.titulo ? `<div class="grupoT"><h3>${g.titulo}</h3>${g.sub ? `<span>${g.sub}</span>` : ""}</div>` : ""}
+      <ul class="items">${g.items.map(tarjeta).join("")}</ul>`).join("")}
+  </section>`).join("");
   $$("#catalogo [data-q]").forEach(el => pintarStepper(el, el.dataset.q));
 }
 
@@ -308,7 +335,7 @@ function pintarHoja(){
     <div class="hojaCaja" role="dialog" aria-modal="true" aria-labelledby="hojaT" tabindex="-1">
       <button type="button" class="hojaX" data-cerrar aria-label="Cerrar">×</button>
       ${it.img ? `<img class="hojaImg" src="${esc(it.img)}" alt="">` : ""}
-      <h3 id="hojaT">${esc(it.titulo)}${it.cat === "burgers" && it.v ? ` <small>${esc(cap(it.v))}</small>` : ""}</h3>
+      <h3 id="hojaT">${esc(it.titulo)}</h3>
       ${it.desc ? `<p class="hojaDesc">${esc(it.desc)}</p>` : ""}
       ${it.roles.map((g, i) => {
         const lleno = hoja.sel[i].size >= g.max && g.max > 1;
