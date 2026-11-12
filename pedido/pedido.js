@@ -35,10 +35,11 @@ const NOMBRES_CAT = { burgers: "Hamburguesas", menus: "Menús", picar: "Para pic
 const cap = t => t ? t[0].toUpperCase() + t.slice(1) : "";
 let CATEGORIAS = [];
 let VARIANTES = {};   // "id|v" → { id, v, nombre, titulo, desc, precio, img, cat, roles }
+let FICHAS = {};      // "id|*" → producto con simple y doble (una tarjeta; se elige el tamaño en la ventanita)
 let cartaLista = false, cartaError = false;
 
 function armarCarta(filas){
-  CATEGORIAS = []; VARIANTES = {};
+  CATEGORIAS = []; VARIANTES = {}; FICHAS = {};
   const variantes = r => (r.variantes || []).filter(x => x.precio != null).map(x => {
     const v = x.v || "";
     const titulo = r.categoria === "burgers" ? (v === "doble" ? `${r.nombre} Doble` : r.nombre) : v ? `${r.nombre} ${v}` : r.nombre;
@@ -52,11 +53,24 @@ function armarCarta(filas){
     const items = filas.filter(r => r.categoria === cat).flatMap(variantes);
     if (!items.length) continue;
     if (cat === "burgers"){
-      const dobles = items.filter(x => x.v === "doble"), simples = items.filter(x => x.v !== "doble");
-      const grupos = [];
-      if (dobles.length) grupos.push({ titulo: "Dobles", sub: "Dos medallones de carne de 100 g en pan brioche", items: dobles });
-      if (simples.length) grupos.push({ titulo: "Simples", sub: "Un medallón de carne de 100 g en pan brioche", items: simples });
-      CATEGORIAS.push({ id: cat, nombre: NOMBRES_CAT[cat], grupos });
+      // simple y doble del mismo producto van juntas en una tarjeta
+      const fichas = [];
+      for (const it of items){
+        const k = `${it.id}|*`;
+        if (it.v !== "simple" && it.v !== "doble") { fichas.push(it); continue; }
+        if (!FICHAS[k]){
+          FICHAS[k] = { id: it.id, v: "*", nombre: it.nombre, titulo: it.nombre, desc: it.desc, img: it.img, cat, variantes: [] };
+          fichas.push(FICHAS[k]);
+        }
+        FICHAS[k].variantes.push(it);
+      }
+      for (const f of fichas) if (f.variantes){
+        f.variantes.sort((a, b) => (a.v === "simple" ? 0 : 1) - (b.v === "simple" ? 0 : 1));
+        f.precio = f.variantes[0].precio;
+        if (f.variantes.length === 1) delete FICHAS[`${f.id}|*`];   // solo una versión: tarjeta común
+      }
+      const lista = fichas.map(f => f.variantes && f.variantes.length === 1 ? f.variantes[0] : f);
+      CATEGORIAS.push({ id: cat, nombre: NOMBRES_CAT[cat], grupos: [{ sub: "Simple: un medallón de carne de 100 g · Doble: dos medallones · en pan brioche", items: lista }] });
     } else {
       CATEGORIAS.push({ id: cat, nombre: NOMBRES_CAT[cat], grupos: [{ items }] });
     }
@@ -225,7 +239,7 @@ function cambiar(id, d){
   guardar();
   // actualiza solo lo que cambió (sin redibujar toda la lista)
   $$(`[data-q="${CSS.escape(id)}"]`).forEach(el => pintarStepper(el, id));
-  if (pasoActual === 3 && linea(id)?.roles.length) pintarCatalogo();
+  if (pasoActual === 3 && (linea(id)?.roles.length || FICHAS[id.split("|")[0] + "|*"])) pintarCatalogo();
   pintarCats();
   pintarCarrito();
   if (pasoActual === 4) pintarResumen();
@@ -287,19 +301,25 @@ const SIN_FOTO = `<span class="itImg itImg--vacia" aria-hidden="true"><svg viewB
 const enPedido = idv => Object.entries(estado.items).reduce((t, [k, n]) => t + (k.startsWith(idv + "|") ? n : 0), 0);
 function tarjeta(it){
   const foto = it.img ? `<img class="itImg" src="${esc(it.img)}" alt="" loading="lazy" width="120" height="80">` : SIN_FOTO;
-  const info = `<div class="itInfo"><b class="itNom">${esc(it.titulo)}</b>${it.desc ? `<span class="itDesc">${esc(it.desc)}</span>` : ""}<span class="itPrecio">${euros(it.precio)}</span></div>`;
-  const idv = `${it.id}|${it.v}`;
-  if (it.roles.length){
+  const ficha = it.v === "*";
+  const precioTxt = ficha ? it.variantes.map(x => `${cap(x.v)} ${euros(x.precio)}`).join(" · ") : euros(it.precio);
+  // hamburguesas: sin precio en la lista (depende de simple/doble y extras; se ve en la ventanita)
+  const conPrecio = it.cat !== "burgers";
+  const info = `<div class="itInfo"><b class="itNom">${esc(it.titulo)}</b>${it.desc ? `<span class="itDesc">${esc(it.desc)}</span>` : ""}${conPrecio ? `<span class="itPrecio">${precioTxt}</span>` : ""}</div>`;
+  const idv = ficha ? it.id : `${it.id}|${it.v}`;
+  if (ficha || it.roles.length){
+    const elegirK = ficha ? `${it.id}|*` : idv;
     const n = enPedido(idv);
-    const pista = it.roles.map(g => g.nombre.toLowerCase()).slice(0, 3).join(", ");
+    const pista = (ficha ? ["simple o doble", ...it.variantes[0].roles.map(g => g.nombre.toLowerCase())] : it.roles.map(g => g.nombre.toLowerCase())).slice(0, 3).join(", ");
     const enCarrito = Object.keys(estado.items).filter(k => k.startsWith(idv + "|") && linea(k));
-    return `<li class="it it--foto it--opc" data-elegir="${esc(idv)}" role="button" tabindex="0" aria-label="${esc(it.titulo)}: elegir opciones">
+    return `<li class="it it--foto it--opc" data-elegir="${esc(elegirK)}" role="button" tabindex="0" aria-label="${esc(it.titulo)}: elegir opciones">
       ${foto}
       ${info}
-      <div class="elegir"><button type="button" class="qAdd" data-elegir="${esc(idv)}" title="Elegí: ${esc(pista)}">${n ? "Agregar otro" : "Elegir"} <span aria-hidden="true">+</span></button></div>
+      <div class="elegir"><button type="button" class="qAdd" data-elegir="${esc(elegirK)}" title="Elegí: ${esc(pista)}">${n ? "Agregar otro" : "Elegir"} <span aria-hidden="true">+</span></button></div>
       ${enCarrito.length ? `<ul class="itLineas" aria-label="En tu pedido">${enCarrito.map(k => {
         const l = linea(k);
-        return `<li class="itLinea"><span>${l.extra ? esc(l.extra) : "Sin cambios"}<small>${euros(l.precio)}</small></span>${stepper(k)}</li>`;
+        const det = [ficha ? cap(l.v) : "", l.extra].filter(Boolean).join(" · ");
+        return `<li class="itLinea"><span>${det ? esc(det) : "Sin cambios"}<small>${euros(l.precio)}</small></span>${stepper(k)}</li>`;
       }).join("")}</ul>` : ""}
     </li>`;
   }
@@ -326,25 +346,36 @@ function pintarCatalogo(){
   $("#catalogo").innerHTML = (menusSacados ? `<p class="aviso">Los menús son solo de lunes a viernes al mediodía: los sacamos del pedido.</p>` : "") + visibles.map(c => `<section class="secCat" id="sec-${c.id}">
     <h2 class="secT">${c.nombre}</h2>
     ${c.grupos.map(g => `
-      ${g.titulo ? `<div class="grupoT"><h3>${g.titulo}</h3>${g.sub ? `<span>${g.sub}</span>` : ""}</div>` : ""}
+      ${g.titulo || g.sub ? `<div class="grupoT">${g.titulo ? `<h3>${g.titulo}</h3>` : ""}${g.sub ? `<span>${g.sub}</span>` : ""}</div>` : ""}
       <ul class="items">${g.items.map(tarjeta).join("")}</ul>`).join("")}
   </section>`).join("");
   $$("#catalogo [data-q]").forEach(el => pintarStepper(el, el.dataset.q));
 }
 
 /* Ventanita para elegir opciones (extras, quitar, salsa, partes del menú) */
-let hoja = null;   // { idv, sel: [Set por grupo], n }
+let hoja = null;   // { idv: "id|v" de la versión elegida (o null), ficha, sel: [Set por grupo], n }
+const hojaIt = () => VARIANTES[hoja.idv] || hoja.ficha.variantes[0];   // sin tamaño elegido: muestra las opciones de la simple
 function regla(g){
   if (g.min > 0) return g.min === g.max ? `Elegí ${g.min}` : `Elegí entre ${g.min} y ${g.max}`;
   return g.max === 1 ? "Opcional" : `Opcional · hasta ${g.max}`;
 }
 function hojaOps(){ return [...new Set(hoja.sel.flatMap(s => [...s]))]; }
-function hojaLista(){ return VARIANTES[hoja.idv].roles.every((g, i) => hoja.sel[i].size >= g.min && hoja.sel[i].size <= g.max); }
+function hojaLista(){ return !!VARIANTES[hoja.idv] && hojaIt().roles.every((g, i) => hoja.sel[i].size >= g.min && hoja.sel[i].size <= g.max); }
+// arma la selección para las opciones de la versión actual, conservando lo que ya estaba marcado
+function prepararSel(antes = []){
+  const it = hojaIt();
+  hoja.sel = it.roles.map(g => {
+    const s = new Set(g.opciones.filter(o => antes.includes(o.id)).slice(0, g.max).map(o => o.id));
+    // si un grupo obligatorio tiene una sola opción (ej. patatas del menú), viene marcada
+    if (g.min >= 1 && g.opciones.length === 1) s.add(g.opciones[0].id);
+    return s;
+  });
+}
 function abrirHoja(idv){
-  const it = VARIANTES[idv]; if (!it) return;
-  hoja = { idv, sel: it.roles.map(() => new Set()), n: 1 };
-  // si un grupo obligatorio tiene una sola opción (ej. patatas del menú), viene marcada
-  it.roles.forEach((g, i) => { if (g.min >= 1 && g.opciones.length === 1) hoja.sel[i].add(g.opciones[0].id); });
+  const ficha = FICHAS[idv] || null;
+  if (!ficha && !VARIANTES[idv]) return;
+  hoja = { idv: ficha ? null : idv, ficha, sel: [], n: 1 };
+  prepararSel();
   pintarHoja();
   if (!history.state?.hoja) history.pushState({ hoja: true }, "");
   document.body.classList.add("hojaAbierta");
@@ -360,16 +391,23 @@ function cerrarHoja(desdeHistorial = false){
 }
 window.addEventListener("popstate", () => { if (hoja) cerrarHoja(true); });
 function pintarHoja(){
-  const it = VARIANTES[hoja.idv];
+  const it = hojaIt(), f = hoja.ficha, elegido = !!VARIANTES[hoja.idv];
   const scrollAntes = $("#hoja .hojaCaja")?.scrollTop || 0;
   const extra = hojaOps().reduce((t, id) => t + (+(it.roles.flatMap(g => g.opciones).find(o => o.id === id)?.precio) || 0), 0);
   const total = (it.precio + extra) * hoja.n;
+  const tamano = f ? `<fieldset class="grupo"><legend>Simple o doble<small class="${elegido ? "" : "falta"}">Elegí 1</small></legend>
+          ${f.variantes.map(x => {
+            const on = hoja.idv === `${x.id}|${x.v}`;
+            return `<label class="op${on ? " isOn" : ""}"><input type="checkbox" data-hv="${esc(x.v)}"${on ? " checked" : ""}>
+              <span>${cap(x.v)}<small class="opSub">${x.v === "doble" ? "Dos medallones de 100 g" : "Un medallón de 100 g"}</small></span><em>${euros(x.precio)}</em></label>`;
+          }).join("")}</fieldset>` : "";
   $("#hoja").innerHTML = `<div class="hojaFondo" data-cerrar></div>
     <div class="hojaCaja" role="dialog" aria-modal="true" aria-labelledby="hojaT" tabindex="-1">
       <button type="button" class="hojaX" data-cerrar aria-label="Volver a la carta">×</button>
       ${it.img ? `<img class="hojaImg" src="${esc(it.img)}" alt="" data-cerrar title="Tocá para volver">` : ""}
-      <h3 id="hojaT">${esc(it.titulo)}</h3>
+      <h3 id="hojaT">${esc(f ? f.titulo : it.titulo)}</h3>
       ${it.desc ? `<p class="hojaDesc">${esc(it.desc)}</p>` : ""}
+      ${tamano}
       ${it.roles.map((g, i) => {
         const lleno = hoja.sel[i].size >= g.max && g.max > 1;
         return `<fieldset class="grupo"><legend>${esc(g.nombre)}<small class="${g.min > 0 && hoja.sel[i].size < g.min ? "falta" : ""}">${regla(g)}</small></legend>
@@ -381,7 +419,7 @@ function pintarHoja(){
       }).join("")}
       <div class="hojaPie">
         <div class="stepper isOn"><button type="button" class="q" data-hn="-1" aria-label="Uno menos">−</button><span class="qN">${hoja.n}</span><button type="button" class="q" data-hn="1" aria-label="Uno más">+</button></div>
-        <button type="button" class="btn btn--solid" data-hagregar${hojaLista() ? "" : " disabled"}>Agregar · ${euros(total)}</button>
+        <button type="button" class="btn btn--solid" data-hagregar${hojaLista() ? "" : " disabled"}>${elegido ? `Agregar · ${euros(total)}` : "Elegí simple o doble"}</button>
       </div>
     </div>`;
   $("#hoja .hojaCaja").scrollTop = scrollAntes;
@@ -401,8 +439,14 @@ document.addEventListener("click", e => {
   }
 });
 document.addEventListener("change", e => {
+  const tv = e.target.closest("#hoja input[data-hv]");
+  if (tv && hoja?.ficha){
+    const antes = hojaOps();
+    hoja.idv = tv.checked ? `${hoja.ficha.id}|${tv.dataset.hv}` : null;
+    prepararSel(antes); pintarHoja(); return;
+  }
   const inp = e.target.closest("#hoja input[data-g]"); if (!inp || !hoja) return;
-  const i = +inp.dataset.g, g = VARIANTES[hoja.idv].roles[i], id = +inp.value;
+  const i = +inp.dataset.g, g = hojaIt().roles[i], id = +inp.value;
   if (inp.checked){ if (g.max === 1) hoja.sel[i].clear(); hoja.sel[i].add(id); } else hoja.sel[i].delete(id);
   pintarHoja();
 });

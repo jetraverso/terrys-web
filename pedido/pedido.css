@@ -310,3 +310,6 @@ body.hojaAbierta{ overflow: hidden; }
 .itLinea{ display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; }
 .itLinea > span{ display: grid; gap: 2px; color: var(--muted); min-width: 0; }
 .itLinea small{ font-size: 12px; font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; }
+
+/* Simple o doble: aclaración debajo del nombre */
+.op .opSub{ display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 1px; }
