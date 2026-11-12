@@ -347,7 +347,8 @@ function setupProductos(){
   document.getElementById("prodToBurger")?.addEventListener("click", () => setModo(false));
 
   /* -- Carrusel automático ------------------------------------------
-     Si nadie toca nada: descripción → ingredientes → personaje → siguiente burger.
+     Si nadie toca nada pasa a la siguiente burger (solo la foto de la burger; ingredientes
+     y personaje se ven solo si alguien los toca).
      Se frena con el mouse encima, al tocar algo (vuelve a los 12 s de no tocar),
      si la sección no está en pantalla o la pestaña está en segundo plano. */
   const PASO = 6500, QUIETO = 12000;
@@ -364,9 +365,8 @@ function setupProductos(){
     return visible > r.height * .6;
   }
   function avanzar(){
-    if (enPersonaje()) selectBurger((currentIdx + 1) % data.burgers.length, true, false);
-    else if (prodRight.classList.contains("showIng")) setModo(true);
-    else verIngredientes(true);
+    verIngredientes(false);
+    selectBurger((currentIdx + 1) % data.burgers.length, true, false);
   }
   function programar(){
     clearTimeout(timer);

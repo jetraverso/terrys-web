@@ -292,7 +292,7 @@ function tarjeta(it){
   if (it.roles.length){
     const n = enPedido(idv);
     const pista = it.roles.map(g => g.nombre.toLowerCase()).slice(0, 3).join(", ");
-    return `<li class="it it--foto it--opc">
+    return `<li class="it it--foto it--opc" data-elegir="${esc(idv)}" role="button" tabindex="0" aria-label="${esc(it.titulo)}: elegir opciones">
       ${foto}
       ${info}
       <div class="elegir">${n ? `<span class="enPedido">${n} en tu pedido</span>` : ""}<button type="button" class="qAdd" data-elegir="${esc(idv)}" title="Elegí: ${esc(pista)}">${n ? "Agregar otro" : "Elegir"} <span aria-hidden="true">+</span></button></div>
@@ -341,19 +341,25 @@ function abrirHoja(idv){
   // si un grupo obligatorio tiene una sola opción (ej. patatas del menú), viene marcada
   it.roles.forEach((g, i) => { if (g.min >= 1 && g.opciones.length === 1) hoja.sel[i].add(g.opciones[0].id); });
   pintarHoja();
+  if (!history.state?.hoja) history.pushState({ hoja: true }, "");
   document.body.classList.add("hojaAbierta");
   $("#hoja").hidden = false;
   setTimeout(() => $("#hoja .hojaCaja")?.focus(), 30);
 }
-function cerrarHoja(){ hoja = null; $("#hoja").hidden = true; document.body.classList.remove("hojaAbierta"); }
+function cerrarHoja(desdeHistorial = false){
+  if (!hoja) return;
+  hoja = null; $("#hoja").hidden = true; document.body.classList.remove("hojaAbierta");
+  if (!desdeHistorial && history.state?.hoja) history.back();
+}
+window.addEventListener("popstate", () => { if (hoja) cerrarHoja(true); });
 function pintarHoja(){
   const it = VARIANTES[hoja.idv];
   const extra = hojaOps().reduce((t, id) => t + (+(it.roles.flatMap(g => g.opciones).find(o => o.id === id)?.precio) || 0), 0);
   const total = (it.precio + extra) * hoja.n;
   $("#hoja").innerHTML = `<div class="hojaFondo" data-cerrar></div>
     <div class="hojaCaja" role="dialog" aria-modal="true" aria-labelledby="hojaT" tabindex="-1">
-      <button type="button" class="hojaX" data-cerrar aria-label="Cerrar">×</button>
-      ${it.img ? `<img class="hojaImg" src="${esc(it.img)}" alt="">` : ""}
+      <button type="button" class="hojaX" data-cerrar aria-label="Volver a la carta">×</button>
+      ${it.img ? `<img class="hojaImg" src="${esc(it.img)}" alt="" data-cerrar title="Tocá para volver">` : ""}
       <h3 id="hojaT">${esc(it.titulo)}</h3>
       ${it.desc ? `<p class="hojaDesc">${esc(it.desc)}</p>` : ""}
       ${it.roles.map((g, i) => {
@@ -390,7 +396,10 @@ document.addEventListener("change", e => {
   if (inp.checked){ if (g.max === 1) hoja.sel[i].clear(); hoja.sel[i].add(id); } else hoja.sel[i].delete(id);
   pintarHoja();
 });
-document.addEventListener("keydown", e => { if (e.key === "Escape" && hoja) cerrarHoja(); });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && hoja) cerrarHoja();
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches?.("li[data-elegir]")) { e.preventDefault(); abrirHoja(e.target.dataset.elegir); }
+});
 
 /* Barra de abajo y resumen */
 function totales(){

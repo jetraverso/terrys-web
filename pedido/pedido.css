@@ -295,3 +295,10 @@ body.hojaAbierta{ overflow: hidden; }
 
 /* Producto sin foto: recuadro gris con ícono */
 .itImg--vacia{ display: grid; place-items: center; background: rgba(245,245,245,.07); color: rgba(245,245,245,.32); }
+
+/* Toda la tarjeta abre las opciones; en la ventanita, la foto y la cruz vuelven a la carta */
+.it--opc{ cursor: pointer; transition: border-color .15s, background .15s; }
+.it--opc:hover{ border-color: var(--line); background: rgba(245,245,245,.06); }
+.it--opc:focus-visible{ outline: 2px solid var(--fg); outline-offset: 2px; }
+.hojaImg{ cursor: pointer; }
+.hojaX{ width: 42px; height: 42px; font-size: 24px; background: rgba(10,10,10,.75); border-color: rgba(245,245,245,.35); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
