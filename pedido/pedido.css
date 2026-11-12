@@ -248,12 +248,14 @@ a{ color: inherit; }
 body.hojaAbierta{ overflow: hidden; }
 .hoja{ position: fixed; inset: 0; z-index: 50; display: grid; align-items: end; justify-items: center; }
 .hoja[hidden]{ display: none; }
-.hojaFondo{ position: absolute; inset: 0; background: rgba(0,0,0,.62); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); animation: aparece .2s ease; }
+.hojaFondo{ position: absolute; inset: 0; background: rgba(0,0,0,.62); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+.hoja.entra .hojaFondo{ animation: aparece .2s ease; }
+.hoja.entra .hojaCaja{ animation: subeHoja .28s cubic-bezier(.2,.8,.2,1); }
 .hojaCaja{
   position: relative; width: min(560px, 100%); max-height: min(88vh, 88svh); overflow: auto; overscroll-behavior: contain;
   padding: 22px var(--pad) calc(16px + env(safe-area-inset-bottom, 0px)); outline: none;
   background: #141414; border: 1px solid var(--line); border-bottom: 0; border-radius: 22px 22px 0 0;
-  box-shadow: 0 -18px 50px rgba(0,0,0,.55); animation: subeHoja .28s cubic-bezier(.2,.8,.2,1);
+  box-shadow: 0 -18px 50px rgba(0,0,0,.55);
 }
 @media (min-width: 700px){
   .hoja{ align-items: center; }

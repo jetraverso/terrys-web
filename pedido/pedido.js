@@ -343,6 +343,8 @@ function abrirHoja(idv){
   pintarHoja();
   if (!history.state?.hoja) history.pushState({ hoja: true }, "");
   document.body.classList.add("hojaAbierta");
+  $("#hoja").classList.add("entra");
+  setTimeout(() => $("#hoja").classList.remove("entra"), 400);
   $("#hoja").hidden = false;
   setTimeout(() => $("#hoja .hojaCaja")?.focus(), 30);
 }
@@ -354,6 +356,7 @@ function cerrarHoja(desdeHistorial = false){
 window.addEventListener("popstate", () => { if (hoja) cerrarHoja(true); });
 function pintarHoja(){
   const it = VARIANTES[hoja.idv];
+  const scrollAntes = $("#hoja .hojaCaja")?.scrollTop || 0;
   const extra = hojaOps().reduce((t, id) => t + (+(it.roles.flatMap(g => g.opciones).find(o => o.id === id)?.precio) || 0), 0);
   const total = (it.precio + extra) * hoja.n;
   $("#hoja").innerHTML = `<div class="hojaFondo" data-cerrar></div>
@@ -376,6 +379,7 @@ function pintarHoja(){
         <button type="button" class="btn btn--solid" data-hagregar${hojaLista() ? "" : " disabled"}>Agregar · ${euros(total)}</button>
       </div>
     </div>`;
+  $("#hoja .hojaCaja").scrollTop = scrollAntes;
 }
 document.addEventListener("click", e => {
   const el = e.target.closest("[data-elegir]"); if (el) { abrirHoja(el.dataset.elegir); return; }
