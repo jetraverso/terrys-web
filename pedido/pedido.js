@@ -1,8 +1,9 @@
 /* Terry's Burgers · Pedido take away
    Paso 1: cómo (recoger en el local) · Paso 2: día y hora · Paso 3: productos · Paso 4: resumen.
-   Los productos se leen de la tabla "productos" (se editan en la solapa Pedidos del admin:
-   precios, fotos, take away / terraza). El pedido va a web_pedir(), que cobra con esos mismos
-   precios, y aparece en la solapa Pedidos de admin.terrysburgers.com. Por ahora se paga al retirar. */
+   La carta sale de web_carta(): los productos que se muestran (nombre, foto, descripción) se eligen
+   en la solapa Pedidos del admin, y el precio y las opciones (extras, quitar, salsa, partes del menú)
+   vienen de Ágora. El pedido va a web_pedir(), que cobra con esos mismos datos, y entra solo en Ágora.
+   Por ahora se paga al retirar. */
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -25,49 +26,63 @@ const CONFIG = {
 const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 /* ------------------------------------------------------------------ */
-/* CARTA (desde la tabla productos del admin)                           */
+/* CARTA (web_carta: productos del admin + precios y opciones de Ágora)   */
 /* ------------------------------------------------------------------ */
-// Cada línea del carrito es "producto|variante|salsa" (variante: simple/doble o vacío; salsa o vacío).
-const clave = (id, variante = "", salsa = "") => `${id}|${variante}|${salsa}`;
-const NOMBRES_CAT = { burgers: "Hamburguesas", picar: "Para picar", bebidas: "Bebidas", postres: "Postres" };
+// Cada línea del carrito es "producto|variante|opciones" (variante: simple/doble o vacío;
+// opciones: ids de Ágora ordenados y separados por coma).
+const clave = (id, v = "", ops = []) => `${id}|${v}|${[...ops].map(Number).sort((a, b) => a - b).join(",")}`;
+const NOMBRES_CAT = { burgers: "Hamburguesas", menus: "Menús", picar: "Para picar", bebidas: "Bebidas", postres: "Postres" };
+const cap = t => t ? t[0].toUpperCase() + t.slice(1) : "";
 let CATEGORIAS = [];
-let PRODUCTOS = {};
+let VARIANTES = {};   // "id|v" → { id, v, nombre, titulo, desc, precio, img, cat, roles }
 let cartaLista = false, cartaError = false;
 
 function armarCarta(filas){
-  CATEGORIAS = []; PRODUCTOS = {};
-  const item = (r, variante) => {
-    const precio = variante === "doble" ? +r.precio_doble : +r.precio;
-    const extra = variante ? variante[0].toUpperCase() + variante.slice(1) : "";
-    const it = { id: r.id, variante: variante || "", nombre: r.nombre, desc: r.descripcion || "", precio, img: r.foto_url || "",
-                 cat: r.categoria, salsas: r.salsas && r.salsas.length ? r.salsas : null };
-    if (it.salsas) it.salsas.forEach(sa => (PRODUCTOS[clave(r.id, it.variante, sa)] = { ...it, extra: [extra, `Salsa ${sa.toLowerCase()}`].filter(Boolean).join(" · ") }));
-    else PRODUCTOS[clave(r.id, it.variante)] = { ...it, extra };
+  CATEGORIAS = []; VARIANTES = {};
+  const variantes = r => (r.variantes || []).filter(x => x.precio != null).map(x => {
+    const v = x.v || "";
+    const it = { id: r.id, v, nombre: r.nombre, titulo: r.categoria !== "burgers" && v ? `${r.nombre} ${v}` : r.nombre,
+                 desc: r.descripcion || "", precio: +x.precio, img: r.foto_url || "", cat: r.categoria,
+                 roles: (x.roles || []).filter(g => g.opciones && g.opciones.length) };
+    VARIANTES[`${r.id}|${v}`] = it;
     return it;
-  };
+  });
   for (const cat of Object.keys(NOMBRES_CAT)){
-    const l = filas.filter(r => r.categoria === cat);
-    if (!l.length) continue;
+    const items = filas.filter(r => r.categoria === cat).flatMap(variantes);
+    if (!items.length) continue;
     if (cat === "burgers"){
-      const dobles = l.filter(r => r.precio_doble != null);
-      const grupos = [{ titulo: "Simples", sub: "Un medallón de carne de 100 g en pan brioche", items: l.map(r => item(r, r.precio_doble != null ? "simple" : "")) }];
-      if (dobles.length) grupos.push({ titulo: "Dobles", sub: "Dos medallones de carne de 100 g en pan brioche", items: dobles.map(r => item(r, "doble")) });
+      const dobles = items.filter(x => x.v === "doble");
+      const grupos = [{ titulo: "Simples", sub: "Un medallón de carne de 100 g en pan brioche", items: items.filter(x => x.v !== "doble") }];
+      if (dobles.length) grupos.push({ titulo: "Dobles", sub: "Dos medallones de carne de 100 g en pan brioche", items: dobles });
       CATEGORIAS.push({ id: cat, nombre: NOMBRES_CAT[cat], grupos });
     } else {
-      CATEGORIAS.push({ id: cat, nombre: NOMBRES_CAT[cat], grupos: [{ items: l.map(r => item(r, "")) }] });
+      CATEGORIAS.push({ id: cat, nombre: NOMBRES_CAT[cat], grupos: [{ items }] });
     }
   }
 }
 
+// Una línea del carrito armada (nombre, detalle y precio con extras); null si ya no es válida.
+function linea(k){
+  const [id, v, s] = k.split("|");
+  const it = VARIANTES[`${id}|${v}`]; if (!it) return null;
+  const ops = s ? s.split(",").map(Number) : [];
+  const todas = it.roles.flatMap(g => g.opciones);
+  if (ops.some(o => !todas.some(x => x.id === o))) return null;
+  for (const g of it.roles){
+    const n = g.opciones.filter(o => ops.includes(o.id)).length;
+    if (n < g.min || n > g.max) return null;
+  }
+  const elegidas = todas.filter((x, i) => ops.includes(x.id) && todas.findIndex(y => y.id === x.id) === i);
+  const extra = [it.cat === "burgers" && it.v ? cap(it.v) : "", elegidas.map(x => x.nombre).join(", ")].filter(Boolean).join(" · ");
+  return { ...it, ops, extra, precio: it.precio + elegidas.reduce((t, x) => t + (+x.precio || 0), 0) };
+}
+
 async function cargarCarta(){
   try {
-    const r = await fetch(`${CONFIG.supabaseUrl}/rest/v1/productos?select=id,categoria,nombre,descripcion,precio,precio_doble,salsas,foto_url&activo=eq.true&take_away=eq.true&order=orden.asc,nombre.asc`,
-      { headers: { apikey: CONFIG.supabaseKey, Authorization: `Bearer ${CONFIG.supabaseKey}` } });
-    if (!r.ok) throw new Error(`Error ${r.status}`);
-    armarCarta(await r.json());
+    armarCarta(await rpc("web_carta", {}) || []);
     cartaLista = true; cartaError = false;
     // lo que había en el carrito y ya no está (o cambió) se saca
-    for (const k of Object.keys(estado.items)) if (!PRODUCTOS[k]) delete estado.items[k];
+    for (const k of Object.keys(estado.items)) if (!linea(k)) delete estado.items[k];
     if (!CATEGORIAS.some(c => c.id === estado.cat)) estado.cat = CATEGORIAS[0]?.id || "burgers";
     guardar();
   } catch {
@@ -81,7 +96,7 @@ async function cargarCarta(){
 /* ------------------------------------------------------------------ */
 /* ESTADO (se guarda en este navegador para no perder el pedido)        */
 /* ------------------------------------------------------------------ */
-const CLAVE = "terrys-pedido-v2";
+const CLAVE = "terrys-pedido-v3";
 let estado = { modo: "recoger", dia: null, hora: null, cat: "burgers", items: {} };
 try {
   const g = JSON.parse(localStorage.getItem(CLAVE) || "null");
@@ -192,6 +207,7 @@ function cambiar(id, d){
   guardar();
   // actualiza solo lo que cambió (sin redibujar toda la lista)
   $$(`[data-q="${CSS.escape(id)}"]`).forEach(el => pintarStepper(el, id));
+  if (pasoActual === 3 && linea(id)?.roles.length) pintarCatalogo();
   pintarCats();
   pintarCarrito();
   if (pasoActual === 4) pintarResumen();
@@ -213,7 +229,7 @@ document.addEventListener("click", e => {
 });
 
 function cantidadCat(cat){
-  return Object.entries(estado.items).reduce((s, [id, n]) => s + (PRODUCTOS[id]?.cat === cat ? n : 0), 0);
+  return Object.entries(estado.items).reduce((s, [k, n]) => s + (linea(k)?.cat === cat ? n : 0), 0);
 }
 function pintarCats(){
   $("#cats").innerHTML = CATEGORIAS.map(c => {
@@ -227,19 +243,24 @@ $("#cats").addEventListener("click", e => {
   $("#cats").scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
+const enPedido = idv => Object.entries(estado.items).reduce((t, [k, n]) => t + (k.startsWith(idv + "|") ? n : 0), 0);
 function tarjeta(it){
   const foto = it.img ? `<img class="itImg" src="${esc(it.img)}" alt="" loading="lazy" width="120" height="80">` : "";
-  const info = `<div class="itInfo"><b class="itNom">${esc(it.nombre)}</b>${it.desc ? `<span class="itDesc">${esc(it.desc)}</span>` : ""}<span class="itPrecio">${euros(it.precio)}</span></div>`;
-  if (it.salsas){
-    return `<li class="it it--salsas">
+  const info = `<div class="itInfo"><b class="itNom">${esc(it.titulo)}</b>${it.desc ? `<span class="itDesc">${esc(it.desc)}</span>` : ""}<span class="itPrecio">${euros(it.precio)}</span></div>`;
+  const idv = `${it.id}|${it.v}`;
+  if (it.roles.length){
+    const n = enPedido(idv);
+    const pista = it.roles.map(g => g.nombre.toLowerCase()).slice(0, 3).join(", ");
+    return `<li class="it${it.img ? " it--foto" : ""} it--opc">
+      ${foto}
       ${info}
-      <div class="salsas">${it.salsas.map(sa => `<div class="salsa"><span>${esc(sa)}</span>${stepper(clave(it.id, it.variante, sa))}</div>`).join("")}</div>
+      <div class="elegir">${n ? `<span class="enPedido">${n} en tu pedido</span>` : ""}<button type="button" class="qAdd" data-elegir="${esc(idv)}" title="Elegí: ${esc(pista)}">${n ? "Agregar otro" : "Elegir"} <span aria-hidden="true">+</span></button></div>
     </li>`;
   }
   return `<li class="it${it.img ? " it--foto" : ""}">
     ${foto}
     ${info}
-    ${stepper(clave(it.id, it.variante))}
+    ${stepper(clave(it.id, it.v))}
   </li>`;
 }
 function pintarCatalogo(){
@@ -260,12 +281,77 @@ function pintarCatalogo(){
   $$("#catalogo [data-q]").forEach(el => pintarStepper(el, el.dataset.q));
 }
 
+/* Ventanita para elegir opciones (extras, quitar, salsa, partes del menú) */
+let hoja = null;   // { idv, sel: [Set por grupo], n }
+function regla(g){
+  if (g.min > 0) return g.min === g.max ? `Elegí ${g.min}` : `Elegí entre ${g.min} y ${g.max}`;
+  return g.max === 1 ? "Opcional" : `Opcional · hasta ${g.max}`;
+}
+function hojaOps(){ return [...new Set(hoja.sel.flatMap(s => [...s]))]; }
+function hojaLista(){ return VARIANTES[hoja.idv].roles.every((g, i) => hoja.sel[i].size >= g.min && hoja.sel[i].size <= g.max); }
+function abrirHoja(idv){
+  const it = VARIANTES[idv]; if (!it) return;
+  hoja = { idv, sel: it.roles.map(() => new Set()), n: 1 };
+  // si un grupo obligatorio tiene una sola opción (ej. patatas del menú), viene marcada
+  it.roles.forEach((g, i) => { if (g.min >= 1 && g.opciones.length === 1) hoja.sel[i].add(g.opciones[0].id); });
+  pintarHoja();
+  document.body.classList.add("hojaAbierta");
+  $("#hoja").hidden = false;
+  setTimeout(() => $("#hoja .hojaCaja")?.focus(), 30);
+}
+function cerrarHoja(){ hoja = null; $("#hoja").hidden = true; document.body.classList.remove("hojaAbierta"); }
+function pintarHoja(){
+  const it = VARIANTES[hoja.idv];
+  const extra = hojaOps().reduce((t, id) => t + (+(it.roles.flatMap(g => g.opciones).find(o => o.id === id)?.precio) || 0), 0);
+  const total = (it.precio + extra) * hoja.n;
+  $("#hoja").innerHTML = `<div class="hojaFondo" data-cerrar></div>
+    <div class="hojaCaja" role="dialog" aria-modal="true" aria-labelledby="hojaT" tabindex="-1">
+      <button type="button" class="hojaX" data-cerrar aria-label="Cerrar">×</button>
+      ${it.img ? `<img class="hojaImg" src="${esc(it.img)}" alt="">` : ""}
+      <h3 id="hojaT">${esc(it.titulo)}${it.cat === "burgers" && it.v ? ` <small>${esc(cap(it.v))}</small>` : ""}</h3>
+      ${it.desc ? `<p class="hojaDesc">${esc(it.desc)}</p>` : ""}
+      ${it.roles.map((g, i) => {
+        const lleno = hoja.sel[i].size >= g.max && g.max > 1;
+        return `<fieldset class="grupo"><legend>${esc(g.nombre)}<small class="${g.min > 0 && hoja.sel[i].size < g.min ? "falta" : ""}">${regla(g)}</small></legend>
+          ${g.opciones.map(o => {
+            const on = hoja.sel[i].has(o.id);
+            return `<label class="op${on ? " isOn" : ""}"><input type="checkbox" data-g="${i}" value="${o.id}"${on ? " checked" : ""}${!on && lleno ? " disabled" : ""}>
+              <span>${esc(o.nombre)}</span>${+o.precio > 0 ? `<em>+${euros(+o.precio)}</em>` : ""}</label>`;
+          }).join("")}</fieldset>`;
+      }).join("")}
+      <div class="hojaPie">
+        <div class="stepper isOn"><button type="button" class="q" data-hn="-1" aria-label="Uno menos">−</button><span class="qN">${hoja.n}</span><button type="button" class="q" data-hn="1" aria-label="Uno más">+</button></div>
+        <button type="button" class="btn btn--solid" data-hagregar${hojaLista() ? "" : " disabled"}>Agregar · ${euros(total)}</button>
+      </div>
+    </div>`;
+}
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-elegir]"); if (el) { abrirHoja(el.dataset.elegir); return; }
+  if (!hoja) return;
+  if (e.target.closest("[data-cerrar]")) { cerrarHoja(); return; }
+  const hn = e.target.closest("[data-hn]");
+  if (hn) { hoja.n = Math.max(1, Math.min(20, hoja.n + +hn.dataset.hn)); pintarHoja(); return; }
+  if (e.target.closest("[data-hagregar]") && hojaLista()){
+    const it = VARIANTES[hoja.idv], k = clave(it.id, it.v, hojaOps());
+    estado.items[k] = Math.min(50, (estado.items[k] || 0) + hoja.n);
+    guardar(); cerrarHoja();
+    pintarCatalogo(); pintarCarrito();
+  }
+});
+document.addEventListener("change", e => {
+  const inp = e.target.closest("#hoja input[data-g]"); if (!inp || !hoja) return;
+  const i = +inp.dataset.g, g = VARIANTES[hoja.idv].roles[i], id = +inp.value;
+  if (inp.checked){ if (g.max === 1) hoja.sel[i].clear(); hoja.sel[i].add(id); } else hoja.sel[i].delete(id);
+  pintarHoja();
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && hoja) cerrarHoja(); });
+
 /* Barra de abajo y resumen */
 function totales(){
   let n = 0, t = 0;
-  for (const [id, q] of Object.entries(estado.items)){
-    const p = PRODUCTOS[id]; if (!p) continue;
-    n += q; t += q * p.precio;
+  for (const [k, q] of Object.entries(estado.items)){
+    const l = linea(k); if (!l) continue;
+    n += q; t += q * l.precio;
   }
   return { n, t };
 }
@@ -278,14 +364,15 @@ function pintarCarrito(){
 }
 function pintarResumen(){
   $("#recogida2").innerHTML = textoRecogida();
-  const orden = Object.keys(PRODUCTOS);
-  const ids = Object.keys(estado.items).filter(id => PRODUCTOS[id]).sort((a, b) => orden.indexOf(a) - orden.indexOf(b));
-  $("#lineas").innerHTML = ids.map(id => {
-    const p = PRODUCTOS[id];
+  const orden = Object.keys(VARIANTES);
+  const pos = k => orden.indexOf(k.split("|").slice(0, 2).join("|"));
+  const ids = Object.keys(estado.items).filter(k => linea(k)).sort((a, b) => pos(a) - pos(b));
+  $("#lineas").innerHTML = ids.map(k => {
+    const p = linea(k);
     return `<li class="linea">
-      <div class="lineaTxt"><b>${esc(p.nombre)}</b>${p.extra ? `<span>${esc(p.extra)}</span>` : ""}</div>
-      ${stepper(id)}
-      <span class="lineaPrecio">${euros(p.precio * cant(id))}</span>
+      <div class="lineaTxt"><b>${esc(p.titulo)}</b>${p.extra ? `<span>${esc(p.extra)}</span>` : ""}</div>
+      ${stepper(k)}
+      <span class="lineaPrecio">${euros(p.precio * cant(k))}</span>
     </li>`;
   }).join("");
   $$("#lineas [data-q]").forEach(el => pintarStepper(el, el.dataset.q));
@@ -361,9 +448,9 @@ form.addEventListener("submit", async e => {
     dia: estado.dia, hora: estado.hora,
     nombre: form.elements.nombre.value.trim(), telefono: telefonoCompleto(),
     comentario: form.elements.comentario.value.trim(), web: form.elements.web.value,
-    items: Object.entries(estado.items).filter(([k]) => PRODUCTOS[k]).map(([k, cant]) => {
-      const [id, variante, salsa] = k.split("|");
-      return { id, variante: variante || null, salsa: salsa || null, cant };
+    items: Object.entries(estado.items).filter(([k]) => linea(k)).map(([k, cant]) => {
+      const [id, variante] = k.split("|");
+      return { id, variante: variante || null, cant, opciones: linea(k).ops };
     }),
   };
   btn.disabled = true; btn.textContent = "Enviando…";
