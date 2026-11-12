@@ -292,10 +292,15 @@ function tarjeta(it){
   if (it.roles.length){
     const n = enPedido(idv);
     const pista = it.roles.map(g => g.nombre.toLowerCase()).slice(0, 3).join(", ");
+    const enCarrito = Object.keys(estado.items).filter(k => k.startsWith(idv + "|") && linea(k));
     return `<li class="it it--foto it--opc" data-elegir="${esc(idv)}" role="button" tabindex="0" aria-label="${esc(it.titulo)}: elegir opciones">
       ${foto}
       ${info}
-      <div class="elegir">${n ? `<span class="enPedido">${n} en tu pedido</span>` : ""}<button type="button" class="qAdd" data-elegir="${esc(idv)}" title="Elegí: ${esc(pista)}">${n ? "Agregar otro" : "Elegir"} <span aria-hidden="true">+</span></button></div>
+      <div class="elegir"><button type="button" class="qAdd" data-elegir="${esc(idv)}" title="Elegí: ${esc(pista)}">${n ? "Agregar otro" : "Elegir"} <span aria-hidden="true">+</span></button></div>
+      ${enCarrito.length ? `<ul class="itLineas" aria-label="En tu pedido">${enCarrito.map(k => {
+        const l = linea(k);
+        return `<li class="itLinea"><span>${l.extra ? esc(l.extra) : "Sin cambios"}<small>${euros(l.precio)}</small></span>${stepper(k)}</li>`;
+      }).join("")}</ul>` : ""}
     </li>`;
   }
   return `<li class="it it--foto">
@@ -382,7 +387,8 @@ function pintarHoja(){
   $("#hoja .hojaCaja").scrollTop = scrollAntes;
 }
 document.addEventListener("click", e => {
-  const el = e.target.closest("[data-elegir]"); if (el) { abrirHoja(el.dataset.elegir); return; }
+  const el = e.target.closest("[data-elegir]");
+  if (el && !e.target.closest(".itLineas")) { abrirHoja(el.dataset.elegir); return; }
   if (!hoja) return;
   if (e.target.closest("[data-cerrar]")) { cerrarHoja(); return; }
   const hn = e.target.closest("[data-hn]");

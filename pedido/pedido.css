@@ -304,3 +304,9 @@ body.hojaAbierta{ overflow: hidden; }
 .it--opc:focus-visible{ outline: 2px solid var(--fg); outline-offset: 2px; }
 .hojaImg{ cursor: pointer; }
 .hojaX{ width: 42px; height: 42px; font-size: 24px; background: rgba(10,10,10,.75); border-color: rgba(245,245,245,.35); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+
+/* Lo que ya está en el pedido, debajo de cada producto con opciones (con − n + para sacar) */
+.itLineas{ grid-column: 1 / -1; list-style: none; margin: 2px 0 0; padding: 10px 0 0; border-top: 1px solid var(--line2); display: grid; gap: 8px; cursor: default; }
+.itLinea{ display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; }
+.itLinea > span{ display: grid; gap: 2px; color: var(--muted); min-width: 0; }
+.itLinea small{ font-size: 12px; font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; }
