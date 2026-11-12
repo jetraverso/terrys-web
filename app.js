@@ -643,7 +643,7 @@ function setupQR(){
   const container = document.getElementById("qrCanvas");
   if (!container || typeof QRCode === "undefined") return;
   new QRCode(container, {
-    text: "https://smartmenu.agorapos.com/?id=eau1gphq&workplaceId=ghgys9hf#/",
+    text: "https://terrysburgers.com/pedido/",   // la página de pedidos take away propia
     width: 110,
     height: 110,
     colorDark: "#0a0a0a",
