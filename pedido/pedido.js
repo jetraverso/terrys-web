@@ -323,7 +323,8 @@ function tarjeta(it){
       }).join("")}</ul>` : ""}
     </li>`;
   }
-  return `<li class="it it--foto">
+  // sin opciones: − / + en la tarjeta, y tocándola se ve en grande
+  return `<li class="it it--foto it--ver" data-elegir="${esc(idv)}" role="button" tabindex="0" aria-label="${esc(it.titulo)}: ver en grande">
     ${foto}
     ${info}
     ${stepper(clave(it.id, it.v))}
@@ -426,7 +427,7 @@ function pintarHoja(){
 }
 document.addEventListener("click", e => {
   const el = e.target.closest("[data-elegir]");
-  if (el && !e.target.closest(".itLineas")) { abrirHoja(el.dataset.elegir); return; }
+  if (el && !e.target.closest(".itLineas, .stepper")) { abrirHoja(el.dataset.elegir); return; }
   if (!hoja) return;
   if (e.target.closest("[data-cerrar]")) { cerrarHoja(); return; }
   const hn = e.target.closest("[data-hn]");
