@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Pedido en la terraza · Terry's Burgers</title>
+  <meta name="description" content="Pedí desde tu mesa en la terraza de Terry's Burgers." />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="../assets/img/personajes/terry.webp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../pedido/pedido.css?v=11" />
+</head>
+<body>
+  <header class="top">
+    <span class="brand">TERRY'S BURGERS</span>
+    <span class="topBack mesaNombre"></span>
+  </header>
+
+  <main class="wrap">
+    <div class="eyebrow"><span>Pedido en la terraza</span><i></i></div>
+    <h1 class="h1">Pedí desde tu mesa</h1>
+
+    <!-- Pasos -->
+    <ol class="steps" id="steps">
+      <li data-step="1" hidden>Cómo</li>
+      <li data-step="2" hidden>Hora</li>
+      <li data-step="3">Productos</li>
+      <li data-step="4">Resumen</li>
+    </ol>
+
+    <!-- 1 · Cómo lo querés -->
+    <section class="step" id="paso1" data-step="1" hidden>
+      <h2 class="h2">¿Cómo lo querés?</h2>
+      <div class="modos">
+        <button type="button" class="modo isOn" data-modo="recoger" aria-pressed="true">
+          <span class="modoIc" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+          </span>
+          <span class="modoTxt"><b>Recoger en el local</b><small>Pasás a buscarlo por Terry's a la hora que elijas</small></span>
+          <span class="modoCheck" aria-hidden="true">✓</span>
+        </button>
+        <a class="modo modo--off" href="../#pedir">
+          <span class="modoIc" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="2.5"/><circle cx="18" cy="17" r="2.5"/><path d="M8.5 17h7M4 13l2-5h5l2 5h5"/></svg>
+          </span>
+          <span class="modoTxt"><b>Delivery</b><small>Por ahora, pedilo por Glovo, Uber Eats o Just Eat →</small></span>
+        </a>
+      </div>
+      <button type="button" class="btn btn--solid" data-ir="2">Elegir la hora →</button>
+    </section>
+
+    <!-- 2 · Hora -->
+    <section class="step" id="paso2" data-step="2" hidden>
+      <h2 class="h2">¿A qué hora lo pasás a buscar?</h2>
+      <div class="dias" id="dias" role="tablist" aria-label="Día"></div>
+      <div class="turno" id="turnoMed"><div class="turnoT">Mediodía</div><div class="horas"></div></div>
+      <div class="turno" id="turnoNoc"><div class="turnoT">Noche</div><div class="horas"></div></div>
+      <p class="aviso" id="sinHoras" hidden>Hoy ya no quedan horarios. Elegí mañana.</p>
+      <div class="acciones">
+        <button type="button" class="btn" data-ir="1">← Atrás</button>
+        <button type="button" class="btn btn--solid" data-ir="3" id="aProductos" disabled>Elegir productos →</button>
+      </div>
+    </section>
+
+    <!-- 3 · Productos -->
+    <section class="step" id="paso3" data-step="3" hidden>
+      <div class="recogida" id="recogida"></div>
+      <nav class="cats" id="cats" aria-label="Categorías"></nav>
+      <div id="catalogo"></div>
+    </section>
+
+    <!-- 4 · Resumen -->
+    <section class="step" id="paso4" data-step="4" hidden>
+      <h2 class="h2">Tu pedido</h2>
+      <div class="recogida" id="recogida2"></div>
+      <ul class="lineas" id="lineas"></ul>
+      <p class="aviso" id="vacio" hidden>Todavía no agregaste nada.</p>
+      <div class="total"><span>Total</span><b id="total2">0,00 €</b></div>
+
+      <form id="datos" class="datos" novalidate>
+        <label class="campo"><span>Tu nombre <small>(opcional)</small></span>
+          <input name="nombre" autocomplete="given-name" maxlength="80" placeholder="Para saber de quién es"></label>
+        <label class="campo" hidden><span>Teléfono / WhatsApp</span>
+          <span class="tel">
+            <span class="telPais"><select id="pais" aria-label="País del teléfono"></select><span class="telPaisTxt" aria-hidden="true"></span></span>
+            <input id="tel" type="tel" autocomplete="tel-national" inputmode="tel" maxlength="20" placeholder="600 000 000" required>
+          </span></label>
+        <label class="campo"><span>Comentario <small>(opcional)</small></span>
+          <textarea name="comentario" maxlength="500" rows="2" placeholder="Alergias, sin cebolla, traer todo junto…"></textarea></label>
+        <div class="hp" aria-hidden="true"><label>Web <input type="text" name="web" tabindex="-1" autocomplete="off"></label></div>
+        <label class="check" hidden><input type="checkbox" name="acepto">
+          <span>Acepto que Terry's use estos datos solo para gestionar mi pedido.</span></label>
+
+        <div class="pronto">
+          <b>Pagás al final, al camarero</b>
+          <span>Te lo llevamos a la mesa. Muy pronto vas a poder pagarlo online desde acá.</span>
+        </div>
+        <p class="msg" id="msg" role="status" aria-live="polite"></p>
+        <div class="acciones">
+          <button type="button" class="btn" data-ir="3">← Seguir agregando</button>
+          <button type="submit" class="btn btn--solid" id="enviar">Enviar pedido</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Pedido enviado -->
+    <section class="step" id="paso5" data-step="5" hidden>
+      <div class="ok">
+        <div class="okIc" aria-hidden="true">✓</div>
+        <h2 class="h2">¡Pedido recibido!</h2>
+        <p class="okNum" id="okNum"></p>
+        <p class="okTxt" id="okTxt"></p>
+        <p class="okTxt">Si necesitás cambiar algo, avisale al camarero.</p>
+        <div class="acciones acciones--centro">
+          <button type="button" class="btn btn--solid" id="otro">Pedir algo más</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Barra del pedido (abajo) -->
+  <div class="carrito" id="carrito" hidden>
+    <div class="carritoTxt"><b id="cantidad">0 productos</b><span id="total">0,00 €</span></div>
+    <button type="button" class="btn btn--solid" data-ir="4">Ver pedido →</button>
+  </div>
+
+  <!-- Ventanita para elegir extras / quitar / salsa / partes del menú -->
+  <div class="hoja" id="hoja" hidden></div>
+
+  <script>window.TERRAZA = true;</script>
+  <script src="../pedido/pedido.js?v=13"></script>
+</body>
+</html>

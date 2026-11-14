@@ -23,6 +23,13 @@ const CONFIG = {
   diasAdelante: 1,      // hoy y mañana
 };
 
+// Terraza: la misma página sirve para pedir desde la mesa (terraza/?m=5&c=código del QR).
+// Sin día ni hora, sin teléfono; el pedido va a la mesa y se paga al final, al camarero.
+const MESA = window.TERRAZA ? (() => {
+  const q = new URLSearchParams(location.search);
+  return { n: parseInt(q.get("m"), 10) || 0, c: (q.get("c") || "").slice(0, 40), nombre: "", ok: false };
+})() : null;
+
 const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 /* ------------------------------------------------------------------ */
@@ -110,7 +117,7 @@ function linea(k){
 
 async function cargarCarta(){
   try {
-    armarCarta(await rpc("web_carta", {}) || []);
+    armarCarta(await rpc(MESA ? "web_carta_terraza" : "web_carta", {}) || []);
     cartaLista = true; cartaError = false;
     // lo que había en el carrito y ya no está (o cambió) se saca
     for (const k of Object.keys(estado.items)) if (!linea(k)) delete estado.items[k];
@@ -127,7 +134,7 @@ async function cargarCarta(){
 /* ------------------------------------------------------------------ */
 /* ESTADO (se guarda en este navegador para no perder el pedido)        */
 /* ------------------------------------------------------------------ */
-const CLAVE = "terrys-pedido-v3";
+const CLAVE = MESA ? `terrys-mesa-v1-${MESA.n}` : "terrys-pedido-v3";
 let estado = { modo: "recoger", dia: null, hora: null, cat: "burgers", items: {} };
 try {
   const g = JSON.parse(localStorage.getItem(CLAVE) || "null");
@@ -171,7 +178,9 @@ function horasDe(dia){
 /* PASOS                                                                */
 /* ------------------------------------------------------------------ */
 let pasoActual = 1;
+function ahoraMesa(){ const { dia, min } = ahoraBcn(); estado.dia = dia; estado.hora = aHHMM(min); }
 function irA(n){
+  if (MESA){ ahoraMesa(); if (n < 3) n = 3; }
   if ((n === 3 || n === 4) && !estado.hora) n = 2;   // sin hora no se puede seguir
   pasoActual = n;
   $$(".step").forEach(s => (s.hidden = +s.dataset.step !== n));
@@ -226,6 +235,7 @@ document.addEventListener("click", e => {
 });
 
 function textoRecogida(){
+  if (MESA) return `<span>Pedís para la <b>${esc(MESA.nombre || "mesa " + MESA.n)}</b>: te lo llevamos a la mesa</span>`;
   const { dia: hoy } = ahoraBcn();
   const dia = estado.dia === hoy ? "hoy" : estado.dia === sumarDias(hoy, 1) ? "mañana" : fechaCorta(estado.dia);
   return `<span>Recogés en el local <b>${dia} a las ${estado.hora}</b></span><button type="button" class="link" data-ir="2">Cambiar</button>`;
@@ -528,6 +538,7 @@ try {
 function marcar(){
   let ok = true;
   const mal = (el, m) => { el.closest(".campo, .check").classList.toggle("isError", m); if (m) ok = false; };
+  if (MESA) return true;   // en la mesa no se pide nada (nombre opcional)
   mal(form.elements.nombre, form.elements.nombre.value.trim().length < 2);
   mal(tel, tel.value.replace(/\D/g, "").length < 6);
   mal(form.elements.acepto, !form.elements.acepto.checked);
@@ -554,6 +565,7 @@ form.addEventListener("submit", async e => {
   msg.textContent = "";
   if (!totales().n){ msg.textContent = "Todavía no agregaste nada."; return; }
   if (!marcar()){ msg.textContent = "Completá los campos marcados."; return; }
+  if (MESA) return enviarMesa(msg, btn);
   const datos = {
     dia: estado.dia, hora: estado.hora,
     nombre: form.elements.nombre.value.trim(), telefono: telefonoCompleto(),
@@ -587,11 +599,55 @@ form.addEventListener("submit", async e => {
     btn.disabled = false; btn.textContent = "Enviar pedido";
   }
 });
-$("#otro").addEventListener("click", () => irA(2));
+$("#otro").addEventListener("click", () => irA(MESA ? 3 : 2));
+
+// Pedido desde la mesa
+async function enviarMesa(msg, btn){
+  const datos = {
+    mesa: MESA.n, codigo: MESA.c,
+    nombre: form.elements.nombre.value.trim(), comentario: form.elements.comentario.value.trim(), web: form.elements.web.value,
+    items: Object.entries(estado.items).filter(([k]) => linea(k)).map(([k, cant]) => {
+      const [id, variante] = k.split("|");
+      return { id, variante: variante || null, cant, opciones: linea(k).ops };
+    }),
+  };
+  btn.disabled = true; btn.textContent = "Enviando…";
+  try {
+    const r = await rpc("web_pedir_mesa", { p: datos });
+    try { localStorage.setItem("terrys-mesa-nombre", datos.nombre); } catch {}
+    $("#okNum").textContent = r?.id ? `Pedido nº ${r.id}` : "";
+    $("#okTxt").innerHTML = `Ya lo estamos preparando y te lo llevamos a la <b>${esc(r?.mesa || MESA.nombre)}</b>. Total: <b>${euros(+(r?.total ?? totales().t))}</b>, se paga al final, al camarero.`;
+    estado.items = {}; form.elements.comentario.value = ""; guardar();
+    irA(5);
+  } catch (err){
+    const m = String(err.message || "");
+    msg.textContent =
+      m.includes("mesa") ? "Este QR no es válido. Pedile ayuda al camarero." :
+      m.includes("cerrada") ? "Ahora la cocina está cerrada. Pedile ayuda al camarero." :
+      m.includes("demasiados") ? "Ya recibimos muchos pedidos de esta mesa. Pedile ayuda al camarero." :
+      m.includes("menú") ? "Los menús son solo de lunes a viernes al mediodía. Sacalo del pedido." :
+      m.includes("producto") ? "Hay un producto que no reconocemos. Recargá la página y probá de nuevo." :
+      "No pudimos enviarlo. Probá de nuevo o pedile ayuda al camarero.";
+  } finally {
+    btn.disabled = false; btn.textContent = "Enviar pedido";
+  }
+}
 
 /* ------------------------------------------------------------------ */
 // Arranca en el paso 1; si ya había un pedido a medio armar con hora válida, sigue en productos.
-(function init(){
+(async function init(){
+  if (MESA){
+    try { form.elements.nombre.value = localStorage.getItem("terrys-mesa-nombre") || ""; } catch {}
+    let m = null;
+    try { m = MESA.n && MESA.c ? await rpc("web_mesa", { p_mesa: MESA.n, p_codigo: MESA.c }) : null; } catch {}
+    if (!m){
+      $(".wrap").innerHTML = `<div class="ok"><h1 class="h1">Escaneá el QR de tu mesa</h1><p class="okTxt">Para pedir desde la terraza, escaneá el código que está en tu mesa. Si no funciona, pedile ayuda al camarero.</p><div class="acciones acciones--centro"><a class="btn" href="../">Ir a la web</a></div></div>`;
+      return;
+    }
+    MESA.nombre = m.nombre; MESA.ok = true;
+    $$(".mesaNombre").forEach(el => (el.textContent = m.nombre));
+    irA(3); cargarCarta(); return;
+  }
   const { dia: hoy } = ahoraBcn();
   const valido = estado.dia && estado.hora && estado.dia >= hoy && Object.values(horasDe(estado.dia)).flat().includes(estado.hora);
   if (!valido){ estado.hora = null; }
