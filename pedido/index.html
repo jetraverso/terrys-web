@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="pedido.css?v=12" />
+  <link rel="stylesheet" href="pedido.css?v=13" />
 </head>
 <body>
   <header class="top">
@@ -97,7 +97,14 @@
         <label class="check"><input type="checkbox" name="acepto" required>
           <span>Acepto que Terry's use estos datos solo para gestionar mi pedido.</span></label>
 
-        <div class="pronto">
+        <div class="pago" id="pago" hidden>
+          <h3 class="h3">Cómo pagás</h3>
+          <label class="pagoOp"><input type="radio" name="pago" value="online" checked>
+            <span><b>Pagar ahora con tarjeta</b><small>Pago seguro en la página del banco.</small></span></label>
+          <label class="pagoOp"><input type="radio" name="pago" value="local">
+            <span><b>Pagar al retirar</b><small>En el local, con efectivo o tarjeta.</small></span></label>
+        </div>
+        <div class="pronto" id="pronto">
           <b>Pagás en el local cuando lo retirás</b>
           <span>Muy pronto vas a poder pagarlo online desde acá.</span>
         </div>
@@ -112,8 +119,8 @@
     <!-- Pedido enviado -->
     <section class="step" id="paso5" data-step="5" hidden>
       <div class="ok">
-        <div class="okIc" aria-hidden="true">✓</div>
-        <h2 class="h2">¡Pedido recibido!</h2>
+        <div class="okIc" id="okIc" aria-hidden="true">✓</div>
+        <h2 class="h2" id="okTit">¡Pedido recibido!</h2>
         <p class="okNum" id="okNum"></p>
         <p class="okTxt" id="okTxt"></p>
         <p class="okTxt">Si necesitás cambiar algo, llamanos al <a href="tel:+34615351131">615 35 11 31</a>.</p>
@@ -134,6 +141,6 @@
   <!-- Ventanita para elegir extras / quitar / salsa / partes del menú -->
   <div class="hoja" id="hoja" hidden></div>
 
-  <script src="pedido.js?v=13"></script>
+  <script src="pedido.js?v=14"></script>
 </body>
 </html>

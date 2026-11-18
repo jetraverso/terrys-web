@@ -315,3 +315,19 @@ body.hojaAbierta{ overflow: hidden; }
 
 /* Simple o doble: aclaración debajo del nombre */
 .op .opSub{ display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 1px; }
+
+/* Cómo pagás (pago online con tarjeta o en el local) */
+.pago{ display: grid; gap: 10px; }
+.pago .h3{ margin-bottom: 2px; }
+.pagoOp{
+  display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 16px;
+  border: 1px solid var(--line); background: var(--card); cursor: pointer;
+}
+.pagoOp:has(input:checked){ border-color: var(--fg); }
+.pagoOp input{ width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--fg); flex: none; }
+.pagoOp span{ display: grid; gap: 3px; }
+.pagoOp b{ font-size: 15px; }
+.pagoOp small{ font-size: 13px; color: var(--muted); line-height: 1.45; }
+.okIc.isEspera{ background: transparent; border: 3px solid var(--line); border-top-color: var(--fg); color: transparent; animation: girar 1s linear infinite; }
+.okIc.isMal{ background: transparent; border: 2px solid rgba(245,100,100,.7); color: #ff9c9c; }
+@keyframes girar{ to { transform: rotate(360deg); } }

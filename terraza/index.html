@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../pedido/pedido.css?v=12" />
+  <link rel="stylesheet" href="../pedido/pedido.css?v=13" />
 </head>
 <body>
   <header class="top">
@@ -96,7 +96,14 @@
         <label class="check" hidden><input type="checkbox" name="acepto">
           <span>Acepto que Terry's use estos datos solo para gestionar mi pedido.</span></label>
 
-        <div class="pronto">
+        <div class="pago" id="pago" hidden>
+          <h3 class="h3">Cómo pagás</h3>
+          <label class="pagoOp"><input type="radio" name="pago" value="online" checked>
+            <span><b>Pagar ahora con tarjeta</b><small>Pago seguro en la página del banco.</small></span></label>
+          <label class="pagoOp"><input type="radio" name="pago" value="local">
+            <span><b>Pagar al final, al camarero</b><small>Como siempre: cuando terminás, en la mesa.</small></span></label>
+        </div>
+        <div class="pronto" id="pronto">
           <b>Pagás al final, al camarero</b>
           <span>Te lo llevamos a la mesa. Muy pronto vas a poder pagarlo online desde acá.</span>
         </div>
@@ -111,8 +118,8 @@
     <!-- Pedido enviado -->
     <section class="step" id="paso5" data-step="5" hidden>
       <div class="ok">
-        <div class="okIc" aria-hidden="true">✓</div>
-        <h2 class="h2">¡Pedido recibido!</h2>
+        <div class="okIc" id="okIc" aria-hidden="true">✓</div>
+        <h2 class="h2" id="okTit">¡Pedido recibido!</h2>
         <p class="okNum" id="okNum"></p>
         <p class="okTxt" id="okTxt"></p>
         <p class="okTxt">Si necesitás cambiar algo, avisale al camarero.</p>
@@ -133,6 +140,6 @@
   <div class="hoja" id="hoja" hidden></div>
 
   <script>window.TERRAZA = true;</script>
-  <script src="../pedido/pedido.js?v=13"></script>
+  <script src="../pedido/pedido.js?v=14"></script>
 </body>
 </html>

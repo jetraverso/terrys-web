@@ -3,7 +3,9 @@
    La carta sale de web_carta(): los productos que se muestran (nombre, foto, descripción) se eligen
    en la solapa Pedidos del admin, y el precio y las opciones (extras, quitar, salsa, partes del menú)
    vienen de Ágora. El pedido va a web_pedir(), que cobra con esos mismos datos, y entra solo en Ágora.
-   Por ahora se paga al retirar. */
+   Se paga al retirar (o al camarero) o online con tarjeta: web_pagar() devuelve el formulario
+   firmado para la página de Redsys y, cuando el banco confirma el pago, el pedido entra solo
+   (pagado) en Ágora. Al volver de Redsys, comprobarPago() consulta cómo salió. */
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -29,6 +31,20 @@ const MESA = window.TERRAZA ? (() => {
   const q = new URLSearchParams(location.search);
   return { n: parseInt(q.get("m"), 10) || 0, c: (q.get("c") || "").slice(0, 40), nombre: "", ok: false };
 })() : null;
+
+// Pago online (Redsys). En pruebas solo aparece con ?pago-prueba=<código> (queda guardado en este navegador;
+// ?pago-prueba= vacío lo borra).
+const PRUEBA = (() => {
+  const q = new URLSearchParams(location.search).get("pago-prueba");
+  try {
+    if (q !== null) q ? localStorage.setItem("terrys-pago-prueba", q) : localStorage.removeItem("terrys-pago-prueba");
+    return localStorage.getItem("terrys-pago-prueba") || null;
+  } catch { return q || null; }
+})();
+let pagoOnline = false;
+const pagaOnline = () => pagoOnline && $("#datos").elements.pago?.value === "online";
+function textoBoton(){ $("#enviar").textContent = pagaOnline() && totales().n ? `Pagar ${euros(totales().t)}` : "Enviar pedido"; }
+function mostrarPago(){ $("#pago").hidden = !pagoOnline; $("#pronto").hidden = pagoOnline; textoBoton(); }
 
 const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -499,6 +515,7 @@ function pintarResumen(){
   $("#vacio").hidden = ids.length > 0;
   $("#total2").textContent = euros(totales().t);
   $("#enviar").disabled = !ids.length;
+  textoBoton();
 }
 
 /* ------------------------------------------------------------------ */
@@ -546,7 +563,10 @@ function marcar(){
   return ok;
 }
 form.addEventListener("input", e => e.target.closest(".isError")?.classList.remove("isError"));
-form.addEventListener("change", e => e.target.closest(".isError")?.classList.remove("isError"));
+form.addEventListener("change", e => {
+  e.target.closest(".isError")?.classList.remove("isError");
+  if (e.target.name === "pago") textoBoton();
+});
 
 async function rpc(fn, body){
   const r = await fetch(`${CONFIG.supabaseUrl}/rest/v1/rpc/${fn}`, {
@@ -575,19 +595,18 @@ form.addEventListener("submit", async e => {
       return { id, variante: variante || null, cant, opciones: linea(k).ops };
     }),
   };
-  btn.disabled = true; btn.textContent = "Enviando…";
+  btn.disabled = true; btn.textContent = pagaOnline() ? "Yendo al pago…" : "Enviando…";
   try {
-    const r = await rpc("web_pedir", { p: datos });
     try { localStorage.setItem("terrys-pedido-datos", JSON.stringify({ nombre: datos.nombre, tel: tel.value, pais: pais.value })); } catch {}
-    const { dia: hoy } = ahoraBcn();
-    const cuando = estado.dia === hoy ? "hoy" : estado.dia === sumarDias(hoy, 1) ? "mañana" : fechaCorta(estado.dia);
+    if (pagaOnline()) return await irAPagar(datos);
+    const r = await rpc("web_pedir", { p: datos });
     $("#okNum").textContent = r?.id ? `Pedido nº ${r.id}` : "";
-    $("#okTxt").innerHTML = `Te esperamos <b>${cuando} a las ${estado.hora}</b> en Terry's. Total a pagar en el local: <b>${euros(+(r?.total ?? totales().t))}</b>.`;
+    pantallaOk("ok", "¡Pedido recibido!", `Te esperamos <b>${cuando(estado.dia)} a las ${estado.hora}</b> en Terry's. Total a pagar en el local: <b>${euros(+(r?.total ?? totales().t))}</b>.`);
     estado.items = {}; estado.hora = null; form.elements.comentario.value = ""; guardar();
-    irA(5);
   } catch (err){
     const m = String(err.message || "");
     msg.textContent =
+      m.includes("pago online") ? "Ahora no se puede pagar online. Elegí pagar al retirar." :
       m.includes("demasiados") ? `Ya recibimos varios pedidos desde ese teléfono. Llamanos al ${CONFIG.telefono}.` :
       m.includes("teléfono") ? "Revisá el teléfono." :
       m.includes("horario") || m.includes("día") ? "Esa hora ya no está disponible. Elegí otra." :
@@ -596,7 +615,7 @@ form.addEventListener("submit", async e => {
       `No pudimos enviarlo. Probá de nuevo o llamanos al ${CONFIG.telefono}.`;
     if (m.includes("horario") || m.includes("día")) setTimeout(() => irA(2), 1800);
   } finally {
-    btn.disabled = false; btn.textContent = "Enviar pedido";
+    if (!yendoAlPago){ btn.disabled = false; textoBoton(); }
   }
 });
 $("#otro").addEventListener("click", () => irA(MESA ? 3 : 2));
@@ -611,17 +630,18 @@ async function enviarMesa(msg, btn){
       return { id, variante: variante || null, cant, opciones: linea(k).ops };
     }),
   };
-  btn.disabled = true; btn.textContent = "Enviando…";
+  btn.disabled = true; btn.textContent = pagaOnline() ? "Yendo al pago…" : "Enviando…";
   try {
-    const r = await rpc("web_pedir_mesa", { p: datos });
     try { localStorage.setItem("terrys-mesa-nombre", datos.nombre); } catch {}
+    if (pagaOnline()) return await irAPagar(datos);
+    const r = await rpc("web_pedir_mesa", { p: datos });
     $("#okNum").textContent = r?.id ? `Pedido nº ${r.id}` : "";
-    $("#okTxt").innerHTML = `Ya lo estamos preparando y te lo llevamos a la <b>${esc(r?.mesa || MESA.nombre)}</b>. Total: <b>${euros(+(r?.total ?? totales().t))}</b>, se paga al final, al camarero.`;
+    pantallaOk("ok", "¡Pedido recibido!", `Ya lo estamos preparando y te lo llevamos a la <b>${esc(r?.mesa || MESA.nombre)}</b>. Total: <b>${euros(+(r?.total ?? totales().t))}</b>, se paga al final, al camarero.`);
     estado.items = {}; form.elements.comentario.value = ""; guardar();
-    irA(5);
   } catch (err){
     const m = String(err.message || "");
     msg.textContent =
+      m.includes("pago online") ? "Ahora no se puede pagar online. Elegí pagar al camarero." :
       m.includes("mesa") ? "Este QR no es válido. Pedile ayuda al camarero." :
       m.includes("cerrada") ? "Ahora la cocina está cerrada. Pedile ayuda al camarero." :
       m.includes("demasiados") ? "Ya recibimos muchos pedidos de esta mesa. Pedile ayuda al camarero." :
@@ -629,8 +649,75 @@ async function enviarMesa(msg, btn){
       m.includes("producto") ? "Hay un producto que no reconocemos. Recargá la página y probá de nuevo." :
       "No pudimos enviarlo. Probá de nuevo o pedile ayuda al camarero.";
   } finally {
-    btn.disabled = false; btn.textContent = "Enviar pedido";
+    if (!yendoAlPago){ btn.disabled = false; textoBoton(); }
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* PAGO ONLINE (Redsys)                                                 */
+/* ------------------------------------------------------------------ */
+let yendoAlPago = false;
+const cuando = dia => {
+  const { dia: hoy } = ahoraBcn();
+  return dia === hoy ? "hoy" : dia === sumarDias(hoy, 1) ? "mañana" : fechaCorta(dia);
+};
+function pantallaOk(tipo, titulo, html){
+  const ic = $("#okIc");
+  ic.className = "okIc" + (tipo === "espera" ? " isEspera" : tipo === "mal" ? " isMal" : "");
+  ic.textContent = tipo === "mal" ? "!" : tipo === "espera" ? "" : "✓";
+  $("#okTit").textContent = titulo;
+  $("#okTxt").innerHTML = html;
+  $$("#paso5 .acciones, #paso5 .okTxt + .okTxt").forEach(el => (el.hidden = tipo === "espera"));
+  irA(5);
+}
+// Guarda el pedido para pagar y manda al cliente a la página de Redsys (formulario firmado).
+async function irAPagar(datos){
+  const r = await rpc("web_pagar", { p: { ...datos, prueba: PRUEBA } });
+  yendoAlPago = true;
+  const f = document.createElement("form");
+  f.method = "POST"; f.action = r.url; f.hidden = true;
+  for (const [k, v] of Object.entries(r.params || {})){
+    const i = document.createElement("input"); i.type = "hidden"; i.name = k; i.value = v; f.append(i);
+  }
+  document.body.append(f);
+  f.submit();
+}
+// Al volver de Redsys (?pago=<token>, y &ko=1 si salió mal): pregunta cómo salió hasta tener respuesta.
+async function comprobarPago(token, q){
+  const limpia = new URL(location.href);
+  ["pago", "ko", "Ds_SignatureVersion", "Ds_MerchantParameters", "Ds_Signature"].forEach(k => limpia.searchParams.delete(k));
+  history.replaceState(null, "", limpia);
+  pantallaOk("espera", "Comprobando el pago…", "Un momento, estamos confirmando el pago con el banco.");
+  // si Redsys agregó el resultado a la dirección, se lo pasamos directo (el aviso al servidor puede tardar)
+  const mp = (q.get("Ds_MerchantParameters") || "").split("?")[0], sg = q.get("Ds_Signature");
+  if (mp && sg){
+    try { await rpc("redsys_notificacion", { Ds_SignatureVersion: q.get("Ds_SignatureVersion"), Ds_MerchantParameters: mp, Ds_Signature: sg }); } catch {}
+  }
+  const ko = q.has("ko");
+  let r = null;
+  for (let i = 0; i < 20; i++){
+    try { r = await rpc("web_pago_estado", { p_token: token }); } catch { r = null; }
+    if (r && r.estado !== "esperando") break;
+    if (ko && i >= 2) break;
+    await new Promise(ok => setTimeout(ok, 2000));
+  }
+  if (r?.estado === "pagado"){
+    estado.items = {}; if (!MESA) estado.hora = null; form.elements.comentario.value = ""; guardar();
+    $("#okNum").textContent = r.pedido ? `Pedido nº ${r.pedido}` : "";
+    pantallaOk("ok", "¡Pedido pagado!", r.tipo === "mesa"
+      ? `Pagaste <b>${euros(+r.total)}</b> con tarjeta. Ya lo estamos preparando y te lo llevamos a la <b>${esc(r.mesa || MESA?.nombre || "mesa")}</b>.`
+      : `Pagaste <b>${euros(+r.total)}</b> con tarjeta. Te esperamos <b>${cuando(r.dia)} a las ${esc(r.hora)}</b> en Terry's.`);
+    return;
+  }
+  if (r?.estado === "esperando" && !ko){
+    $("#okNum").textContent = "";
+    pantallaOk("mal", "Todavía no tenemos la confirmación",
+      `Si el banco ya te cobró, el pedido entra solo en unos minutos. Si no, volvé a intentarlo${MESA ? " o pedile ayuda al camarero" : ` o llamanos al ${CONFIG.telefono}`}.`);
+    return;
+  }
+  // rechazado, cancelado en el banco o vencido: el carrito sigue igual para probar de nuevo
+  irA(4);
+  $("#msg").textContent = `El pago no se completó y no te cobramos nada. Probá de nuevo o elegí pagar ${MESA ? "al camarero" : "al retirar"}.`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -646,11 +733,19 @@ async function enviarMesa(msg, btn){
     }
     MESA.nombre = m.nombre; MESA.ok = true;
     $$(".mesaNombre").forEach(el => (el.textContent = m.nombre));
-    irA(3); cargarCarta(); return;
   }
-  const { dia: hoy } = ahoraBcn();
-  const valido = estado.dia && estado.hora && estado.dia >= hoy && Object.values(horasDe(estado.dia)).flat().includes(estado.hora);
-  if (!valido){ estado.hora = null; }
-  irA(valido && Object.keys(estado.items).length ? 3 : 1);
-  cargarCarta();
+  rpc("web_pago_info", { p_prueba: PRUEBA }).then(r => { pagoOnline = !!r?.online; mostrarPago(); }).catch(() => {});
+  const q = new URLSearchParams(location.search);
+  const token = (q.get("pago") || "").match(/^[0-9a-f]{32}/)?.[0];
+  if (MESA){
+    if (!token) irA(3);
+    cargarCarta();
+  } else {
+    const { dia: hoy } = ahoraBcn();
+    const valido = estado.dia && estado.hora && estado.dia >= hoy && Object.values(horasDe(estado.dia)).flat().includes(estado.hora);
+    if (!valido){ estado.hora = null; }
+    if (!token) irA(valido && Object.keys(estado.items).length ? 3 : 1);
+    cargarCarta();
+  }
+  if (token) comprobarPago(token, q);
 })();
