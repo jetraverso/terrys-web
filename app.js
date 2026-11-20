@@ -493,6 +493,38 @@ function setupScrollSuave(){
     if (menu && !menu.hidden && menu.contains(a)){ menu.hidden = true; $("#burgerBtn")?.setAttribute("aria-expanded", "false"); }
     irA(el, hash);
   });
+  llegarAlHash();
+}
+
+/* Al entrar con un link a una sección (terrysburgers.com/#reservas, /reservas…)
+   el navegador salta antes de que carguen fotos y carta, y después todo se corre.
+   Se vuelve a ubicar la sección mientras la página termina de armarse
+   (hasta que la persona toque o mueva algo, o pasen unos segundos). */
+function llegarAlHash(){
+  const id = decodeURIComponent(location.hash.slice(1));
+  const el = id && document.getElementById(id);
+  if (!el) return;
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  const sc = desplazable();
+  let activo = true;
+  const ubicar = () => {
+    if (!activo) return;
+    const margen = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+    const top0 = sc === document.scrollingElement ? 0 : sc.getBoundingClientRect().top;
+    sc.scrollTop = Math.max(0, el.getBoundingClientRect().top - top0 + sc.scrollTop - margen);
+  };
+  const soltar = () => { activo = false; };
+  ["wheel", "touchstart", "keydown", "mousedown"].forEach(ev => window.addEventListener(ev, soltar, { once: true, passive: true }));
+  ubicar();
+  requestAnimationFrame(ubicar);
+  window.addEventListener("load", ubicar);
+  document.fonts?.ready.then(ubicar);
+  if ("ResizeObserver" in window){
+    const ro = new ResizeObserver(ubicar);
+    ro.observe(document.getElementById("app") || document.body);
+    setTimeout(() => ro.disconnect(), 4000);
+  }
+  setTimeout(soltar, 4000);
 }
 
 /* Cada sección aparece con un fundido suave la primera vez que entra en pantalla.
