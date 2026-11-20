@@ -91,6 +91,8 @@
             <span class="telPais"><select id="pais" aria-label="País del teléfono"></select><span class="telPaisTxt" aria-hidden="true"></span></span>
             <input id="tel" type="tel" autocomplete="tel-national" inputmode="tel" maxlength="20" placeholder="600 000 000" required>
           </span></label>
+        <label class="campo"><span>Email <small>(opcional, te mandamos el comprobante)</small></span>
+          <input name="email" type="email" autocomplete="email" inputmode="email" maxlength="120" placeholder="tu@email.com"></label>
         <label class="campo"><span>Comentario <small>(opcional)</small></span>
           <textarea name="comentario" maxlength="500" rows="2" placeholder="Sin cebolla, alergias, salsa extra…"></textarea></label>
         <div class="hp" aria-hidden="true"><label>Web <input type="text" name="web" tabindex="-1" autocomplete="off"></label></div>
@@ -141,6 +143,6 @@
   <!-- Ventanita para elegir extras / quitar / salsa / partes del menú -->
   <div class="hoja" id="hoja" hidden></div>
 
-  <script src="pedido.js?v=14"></script>
+  <script src="pedido.js?v=15"></script>
 </body>
 </html>

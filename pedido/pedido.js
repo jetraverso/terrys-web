@@ -550,12 +550,21 @@ function telefonoCompleto(){
 try {
   const d = JSON.parse(localStorage.getItem("terrys-pedido-datos") || "null");
   if (d){ form.elements.nombre.value = d.nombre || ""; tel.value = d.tel || ""; if (d.pais) pais.value = d.pais; pintarPais(); }
+  form.elements.email.value = d?.email || "";
 } catch {}
+const emailOk = v => !v || /^[^\s@<>"]+@[^\s@<>".]+(\.[^\s@<>".]+)*\.[a-z]{2,}$/i.test(v);
+function guardarEmail(email){
+  try {
+    const d = JSON.parse(localStorage.getItem("terrys-pedido-datos") || "null") || {};
+    d.email = email; localStorage.setItem("terrys-pedido-datos", JSON.stringify(d));
+  } catch {}
+}
 
 function marcar(){
   let ok = true;
   const mal = (el, m) => { el.closest(".campo, .check").classList.toggle("isError", m); if (m) ok = false; };
-  if (MESA) return true;   // en la mesa no se pide nada (nombre opcional)
+  mal(form.elements.email, !emailOk(form.elements.email.value.trim()));
+  if (MESA){ if (!ok) form.elements.email.focus(); return ok; }   // en la mesa solo se revisa el email (todo opcional)
   mal(form.elements.nombre, form.elements.nombre.value.trim().length < 2);
   mal(tel, tel.value.replace(/\D/g, "").length < 6);
   mal(form.elements.acepto, !form.elements.acepto.checked);
@@ -588,7 +597,7 @@ form.addEventListener("submit", async e => {
   if (MESA) return enviarMesa(msg, btn);
   const datos = {
     dia: estado.dia, hora: estado.hora,
-    nombre: form.elements.nombre.value.trim(), telefono: telefonoCompleto(),
+    nombre: form.elements.nombre.value.trim(), telefono: telefonoCompleto(), email: form.elements.email.value.trim(),
     comentario: form.elements.comentario.value.trim(), web: form.elements.web.value,
     items: Object.entries(estado.items).filter(([k]) => linea(k)).map(([k, cant]) => {
       const [id, variante] = k.split("|");
@@ -597,7 +606,7 @@ form.addEventListener("submit", async e => {
   };
   btn.disabled = true; btn.textContent = pagaOnline() ? "Yendo al pago…" : "Enviando…";
   try {
-    try { localStorage.setItem("terrys-pedido-datos", JSON.stringify({ nombre: datos.nombre, tel: tel.value, pais: pais.value })); } catch {}
+    try { localStorage.setItem("terrys-pedido-datos", JSON.stringify({ nombre: datos.nombre, tel: tel.value, pais: pais.value, email: datos.email })); } catch {}
     if (pagaOnline()) return await irAPagar(datos);
     const r = await rpc("web_pedir", { p: datos });
     $("#okNum").textContent = r?.id ? `Pedido nº ${r.id}` : "";
@@ -609,6 +618,7 @@ form.addEventListener("submit", async e => {
       m.includes("pago online") ? "Ahora no se puede pagar online. Elegí pagar al retirar." :
       m.includes("demasiados") ? `Ya recibimos varios pedidos desde ese teléfono. Llamanos al ${CONFIG.telefono}.` :
       m.includes("teléfono") ? "Revisá el teléfono." :
+      m.includes("email") ? "Revisá el email." :
       m.includes("horario") || m.includes("día") ? "Esa hora ya no está disponible. Elegí otra." :
       m.includes("menú") ? "Los menús son solo de lunes a viernes al mediodía. Sacalo del pedido o cambiá la hora." :
       m.includes("producto") ? "Hay un producto que no reconocemos. Recargá la página y probá de nuevo." :
@@ -624,7 +634,8 @@ $("#otro").addEventListener("click", () => irA(MESA ? 3 : 2));
 async function enviarMesa(msg, btn){
   const datos = {
     mesa: MESA.n, codigo: MESA.c,
-    nombre: form.elements.nombre.value.trim(), comentario: form.elements.comentario.value.trim(), web: form.elements.web.value,
+    nombre: form.elements.nombre.value.trim(), email: form.elements.email.value.trim(),
+    comentario: form.elements.comentario.value.trim(), web: form.elements.web.value,
     items: Object.entries(estado.items).filter(([k]) => linea(k)).map(([k, cant]) => {
       const [id, variante] = k.split("|");
       return { id, variante: variante || null, cant, opciones: linea(k).ops };
@@ -633,6 +644,7 @@ async function enviarMesa(msg, btn){
   btn.disabled = true; btn.textContent = pagaOnline() ? "Yendo al pago…" : "Enviando…";
   try {
     try { localStorage.setItem("terrys-mesa-nombre", datos.nombre); } catch {}
+    guardarEmail(datos.email);
     if (pagaOnline()) return await irAPagar(datos);
     const r = await rpc("web_pedir_mesa", { p: datos });
     $("#okNum").textContent = r?.id ? `Pedido nº ${r.id}` : "";
@@ -642,6 +654,7 @@ async function enviarMesa(msg, btn){
     const m = String(err.message || "");
     msg.textContent =
       m.includes("pago online") ? "Ahora no se puede pagar online. Elegí pagar al camarero." :
+      m.includes("email") ? "Revisá el email." :
       m.includes("mesa") ? "Este QR no es válido. Pedile ayuda al camarero." :
       m.includes("cerrada") ? "Ahora la cocina está cerrada. Pedile ayuda al camarero." :
       m.includes("demasiados") ? "Ya recibimos muchos pedidos de esta mesa. Pedile ayuda al camarero." :
